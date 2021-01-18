@@ -30,7 +30,7 @@ func measure(metrics Metrics, entity string) func(ctx context.Context, method st
 	}
 }
 
-func NewRedisMetricsDecorator(client RedisClient, metrics Metrics) *RedisMetricsDecorator {
+func NewRedisMetricsDecorator(client redisClient, metrics Metrics) *RedisMetricsDecorator {
 	return &RedisMetricsDecorator{
 		client:  client,
 		measure: measure(metrics, client.Entity()),
