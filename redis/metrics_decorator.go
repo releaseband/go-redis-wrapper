@@ -30,7 +30,7 @@ func measure(metrics Metrics, entity string) func(ctx context.Context, method st
 	}
 }
 
-func NewRedisMetricsDecorator(client redisClient, metrics Metrics) *RedisMetricsDecorator {
+func NewRedisMetricsDecorator(client RedisClient, metrics Metrics) *RedisMetricsDecorator {
 	return &RedisMetricsDecorator{
 		client:  client,
 		measure: measure(metrics, client.Entity()),
@@ -139,4 +139,8 @@ func (r RedisMetricsDecorator) Status() (interface{}, error) {
 	r.measure(pingCtx, methodPing, callback)
 
 	return resp, err
+}
+
+func (r RedisMetricsDecorator) Entity() string {
+	return r.client.Entity()
 }

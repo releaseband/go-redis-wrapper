@@ -16,10 +16,6 @@ type RedisClient interface {
 	Del(ctx context.Context, key string) error
 	HDel(ctx context.Context, key, field string) error
 	Ping() error
-}
-
-type redisClient interface {
-	RedisClient
 	Entity() string
 }
 
