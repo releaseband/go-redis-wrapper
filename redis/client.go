@@ -21,33 +21,29 @@ var (
 )
 
 type BaseRedisClient struct {
-	impl   implClient
+	impl   redis.Cmdable
 	entity string
 	ping   func() error
 }
 
-func NewRedisCluster(options *redis.ClusterOptions) *BaseRedisClient {
+func NewRedisCluster(options *redis.ClusterOptions) BaseRedisClient {
 	cli := redis.NewClusterClient(options)
 
-	return &BaseRedisClient{
+	return BaseRedisClient{
 		impl:   cli,
 		entity: entityCluster,
 		ping:   clusterPing(cli),
 	}
 }
 
-func NewRedisSimple(options *redis.Options) *BaseRedisClient {
+func NewRedisSimple(options *redis.Options) BaseRedisClient {
 	cli := redis.NewClient(options)
 
-	return &BaseRedisClient{
+	return BaseRedisClient{
 		impl:   cli,
 		entity: entitySimpleRedis,
 		ping:   simplePing(cli),
 	}
-}
-
-func (c BaseRedisClient) HGetAll(ctx context.Context, groupKey string) (map[string]string, error) {
-	return c.impl.HGetAll(ctx, groupKey).Result()
 }
 
 func (c BaseRedisClient) Get(ctx context.Context, key string) (string, error) {
@@ -59,20 +55,8 @@ func (c BaseRedisClient) Get(ctx context.Context, key string) (string, error) {
 	return result, err
 }
 
-func (c BaseRedisClient) HSet(ctx context.Context, key, field string, value interface{}) error {
-	return c.impl.HSet(ctx, key, field, value).Err()
-}
-
 func (c BaseRedisClient) Set(ctx context.Context, key string, value interface{}, expiration time.Duration) error {
 	return c.impl.Set(ctx, key, value, expiration).Err()
-}
-
-func (c BaseRedisClient) HDel(ctx context.Context, key, field string) error {
-	return c.impl.HDel(ctx, key, field).Err()
-}
-
-func (c BaseRedisClient) Del(ctx context.Context, key string) error {
-	return c.impl.Del(ctx, key).Err()
 }
 
 func simplePing(cli *redis.Client) func() error {
@@ -114,4 +98,16 @@ func (c BaseRedisClient) Status() (interface{}, error) {
 
 func (c BaseRedisClient) Entity() string {
 	return c.entity
+}
+
+func (c BaseRedisClient) RPush(ctx context.Context, listKey string, val ...interface{}) error {
+	return c.impl.RPush(ctx, listKey, val).Err()
+}
+
+func (c BaseRedisClient) LTrim(ctx context.Context, listKey string, start, stop int64) error {
+	return c.impl.LTrim(ctx, listKey, start, stop).Err()
+}
+
+func (c BaseRedisClient) LRange(ctx context.Context, listKey string, start, stop int64) ([]string, error) {
+	return c.impl.LRange(ctx, listKey, start, stop).Result()
 }

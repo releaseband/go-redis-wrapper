@@ -6,13 +6,13 @@ import (
 )
 
 const (
-	methodHGetAll = "HGetAll"
-	methodGet     = "Get"
-	methodHSet    = "HSet"
-	methodSet     = "Set"
-	methodHDel    = "HDel"
-	methodDel     = "Del"
-	methodPing    = "Ping"
+	methodLRange = "LRange"
+	methodGet    = "Get"
+	methodRPush  = "RPush"
+	methodSet    = "Set"
+	methodLTrim  = "LTrim"
+	methodDel    = "Del"
+	methodPing   = "Ping"
 )
 
 type Metrics interface {
@@ -30,26 +30,11 @@ func measure(metrics Metrics, entity string) func(ctx context.Context, method st
 	}
 }
 
-func NewRedisMetricsDecorator(client RedisClient, metrics Metrics) *RedisMetricsDecorator {
-	return &RedisMetricsDecorator{
+func NewRedisMetricsDecorator(client RedisClient, metrics Metrics) RedisMetricsDecorator {
+	return RedisMetricsDecorator{
 		client:  client,
 		measure: measure(metrics, client.Entity()),
 	}
-}
-
-func (r RedisMetricsDecorator) HGetAll(ctx context.Context, groupKey string) (map[string]string, error) {
-	var (
-		resp map[string]string
-		err  error
-	)
-
-	callback := func() {
-		resp, err = r.client.HGetAll(ctx, groupKey)
-	}
-
-	r.measure(ctx, methodHGetAll, callback)
-
-	return resp, err
 }
 
 func (r RedisMetricsDecorator) Set(ctx context.Context, key string, value interface{}, expiration time.Duration) error {
@@ -60,18 +45,6 @@ func (r RedisMetricsDecorator) Set(ctx context.Context, key string, value interf
 	}
 
 	r.measure(ctx, methodSet, callback)
-
-	return err
-}
-
-func (r RedisMetricsDecorator) HSet(ctx context.Context, key, field string, value interface{}) error {
-	var err error
-
-	callback := func() {
-		err = r.client.HSet(ctx, key, field, value)
-	}
-
-	r.measure(ctx, methodHSet, callback)
 
 	return err
 }
@@ -91,39 +64,43 @@ func (r RedisMetricsDecorator) Get(ctx context.Context, key string) (string, err
 	return resp, err
 }
 
-func (r RedisMetricsDecorator) Del(ctx context.Context, key string) error {
+func (r RedisMetricsDecorator) RPush(ctx context.Context, listKey string, val ...interface{}) error {
 	var err error
 
 	callback := func() {
-		err = r.client.Del(ctx, key)
+		err = r.client.RPush(ctx, listKey, val)
 	}
 
-	r.measure(ctx, methodDel, callback)
+	r.measure(ctx, methodRPush, callback)
 
 	return err
 }
 
-func (r RedisMetricsDecorator) HDel(ctx context.Context, key, field string) error {
+func (r RedisMetricsDecorator) LTrim(ctx context.Context, listKey string, start, stop int64) error {
 	var err error
 
 	callback := func() {
-		err = r.client.HDel(ctx, key, field)
+		err = r.client.LTrim(ctx, listKey, start, stop)
 	}
 
-	r.measure(ctx, methodHDel, callback)
+	r.measure(ctx, methodLTrim, callback)
 
 	return err
 }
 
-func (r RedisMetricsDecorator) Ping() error {
-	var err error
+func (r RedisMetricsDecorator) LRange(ctx context.Context, listKey string, start, stop int64) ([]string, error) {
+	var (
+		resp []string
+		err  error
+	)
+
 	callback := func() {
-		err = r.client.Ping()
+		resp, err = r.client.LRange(ctx, listKey, start, stop)
 	}
 
-	r.measure(pingCtx, methodPing, callback)
+	r.measure(ctx, methodLRange, callback)
 
-	return err
+	return resp, err
 }
 
 func (r RedisMetricsDecorator) Status() (interface{}, error) {

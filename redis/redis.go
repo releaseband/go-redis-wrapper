@@ -3,28 +3,14 @@ package redis
 import (
 	"context"
 	"time"
-
-	"github.com/go-redis/redis/v8"
 )
 
 type RedisClient interface {
-	Status() (interface{}, error)
-	HGetAll(ctx context.Context, groupKey string) (map[string]string, error)
+	RPush(ctx context.Context, listKey string, val ...interface{}) error
+	LTrim(ctx context.Context, listKey string, start, stop int64) error
+	LRange(ctx context.Context, listKey string, start, stop int64) ([]string, error)
 	Set(ctx context.Context, key string, value interface{}, expiration time.Duration) error
-	HSet(ctx context.Context, key, field string, value interface{}) error
 	Get(ctx context.Context, key string) (string, error)
-	Del(ctx context.Context, key string) error
-	HDel(ctx context.Context, key, field string) error
-	Ping() error
+	Status() (interface{}, error)
 	Entity() string
-}
-
-type implClient interface {
-	Ping(ctx context.Context) *redis.StatusCmd
-	HGetAll(ctx context.Context, groupKey string) *redis.StringStringMapCmd
-	Get(ctx context.Context, key string) *redis.StringCmd
-	HSet(ctx context.Context, key string, value ...interface{}) *redis.IntCmd
-	Set(ctx context.Context, key string, value interface{}, exp time.Duration) *redis.StatusCmd
-	HDel(ctx context.Context, key string, field ...string) *redis.IntCmd
-	Del(ctx context.Context, key ...string) *redis.IntCmd
 }
