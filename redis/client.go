@@ -101,7 +101,7 @@ func (c BaseRedisClient) Entity() string {
 }
 
 func (c BaseRedisClient) RPush(ctx context.Context, listKey string, val ...interface{}) error {
-	return c.impl.RPush(ctx, listKey, val).Err()
+	return c.impl.RPush(ctx, listKey, val...).Err()
 }
 
 func (c BaseRedisClient) LTrim(ctx context.Context, listKey string, start, stop int64) error {
@@ -117,7 +117,7 @@ func (c BaseRedisClient) HGetAll(ctx context.Context, key string) (map[string]st
 }
 
 func (c BaseRedisClient) HSet(ctx context.Context, key string, val ...interface{}) error {
-	return c.impl.HSet(ctx, key, val).Err()
+	return c.impl.HSet(ctx, key, val...).Err()
 }
 
 func (c BaseRedisClient) HDel(ctx context.Context, key string, fields ...string) error {
