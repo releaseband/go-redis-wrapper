@@ -111,3 +111,15 @@ func (c BaseRedisClient) LTrim(ctx context.Context, listKey string, start, stop 
 func (c BaseRedisClient) LRange(ctx context.Context, listKey string, start, stop int64) ([]string, error) {
 	return c.impl.LRange(ctx, listKey, start, stop).Result()
 }
+
+func (c BaseRedisClient) HGetAll(ctx context.Context, key string) (map[string]string, error) {
+	return c.impl.HGetAll(ctx, key).Result()
+}
+
+func (c BaseRedisClient) HSet(ctx context.Context, key string, val ...interface{}) error {
+	return c.impl.HSet(ctx, key, val).Err()
+}
+
+func (c BaseRedisClient) HDel(ctx context.Context, key string, fields ...string) error {
+	return c.impl.HDel(ctx, key, fields...).Err()
+}
