@@ -2,16 +2,22 @@ package internal
 
 import "strconv"
 
+const multiplier = 8
+
 type keyPostfix struct {
 	i           int
 	shardsCount int
 	postfixes   []string
 }
 
+func getPostfix(i int) string {
+	return ":" + strconv.Itoa(i*multiplier)
+}
+
 func makePostfixes(count int) []string {
 	postfixes := make([]string, count)
 	for i := 0; i < count; i++ {
-		postfixes[i] = ":" + strconv.Itoa(i)
+		postfixes[i] = getPostfix(i)
 	}
 
 	return postfixes

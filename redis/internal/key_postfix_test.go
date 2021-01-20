@@ -34,11 +34,11 @@ func TestKeyPostfix_Next(t *testing.T) {
 		for i := 0; i < shardsCount*2-1; i++ {
 			key++
 
-			if key == shardsCount {
+			if i == shardsCount-1 {
 				key = 0
 			}
 
-			exp := ":" + strconv.Itoa(key)
+			exp := ":" + strconv.Itoa(key*multiplier)
 			got := kp.Next()
 			if got != exp {
 				t.Fatalf("exp=%s | got=%s", exp, got)
