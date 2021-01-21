@@ -32,7 +32,7 @@ func makePostfixes(count int) []string {
 	return postfixes
 }
 
-func NewKeyWrapper(ctx context.Context, client BaseRedisClient) (*KeyWrapper, error) {
+func MakeKeyWrapper(ctx context.Context, client BaseRedisClient) (*KeyWrapper, error) {
 	if client.Entity() != entityCluster {
 		return nil, ErrKeyWrapperOnlyForCluster
 	}
