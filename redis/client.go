@@ -125,10 +125,14 @@ func (c BaseRedisClient) HDel(ctx context.Context, key string, fields ...string)
 }
 
 func (c BaseRedisClient) SlotsCount(ctx context.Context) (int, error) {
-	slots, err := c.impl.ClusterSlots(ctx).Result()
-	if err != nil {
-		return 0, err
+	if c.entity == entityCluster {
+		slots, err := c.impl.ClusterSlots(ctx).Result()
+		if err != nil {
+			return 0, err
+		}
+
+		return len(slots), nil
 	}
 
-	return len(slots), nil
+	return 0, nil
 }
