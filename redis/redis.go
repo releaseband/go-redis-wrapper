@@ -21,4 +21,5 @@ type RedisClient interface {
 	Get(ctx context.Context, key string) (string, error)
 	Status() (interface{}, error)
 	Entity() string
+	SlotsCount(ctx context.Context) (int, error)
 }

@@ -1,17 +1,11 @@
-package redis
+package key_wrapper
 
 import (
 	"context"
-	"errors"
-	"fmt"
 	"strconv"
 )
 
 const multiplier = 8
-
-var (
-	ErrKeyWrapperOnlyForCluster = errors.New("key wrapper only for cluster")
-)
 
 type KeyWrapper struct {
 	i           int
@@ -32,24 +26,11 @@ func makePostfixes(count int) []string {
 	return postfixes
 }
 
-func MakeKeyWrapper(ctx context.Context, client BaseRedisClient) (*KeyWrapper, error) {
-	if client.Entity() != entityCluster {
-		return nil, ErrKeyWrapperOnlyForCluster
-	}
-
-	slots, err := client.impl.ClusterSlots(ctx).Result()
-	if err != nil {
-		return nil, fmt.Errorf("ClusterSlots failed: %w", err)
-	}
-
+func NewKeyWrapper(ctx context.Context, slotsCount int) *KeyWrapper {
 	return &KeyWrapper{
-		shardsCount: len(slots),
-		postfixes:   makePostfixes(len(slots)),
-	}, nil
-}
-
-func EmptyKeyWrapper() *KeyWrapper {
-	return &KeyWrapper{}
+		shardsCount: slotsCount,
+		postfixes:   makePostfixes(slotsCount),
+	}
 }
 
 func (b *KeyWrapper) WrapKey(key string) string {

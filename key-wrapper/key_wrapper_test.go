@@ -1,6 +1,7 @@
-package redis
+package key_wrapper
 
 import (
+	"context"
 	"strconv"
 	"testing"
 )
@@ -8,16 +9,11 @@ import (
 func TestKeyPostfix_Next(t *testing.T) {
 	const key = "key"
 
-	makeKeyWrapper := func(count int) *KeyWrapper {
-		return &KeyWrapper{
-			shardsCount: count,
-			postfixes:   makePostfixes(count),
-		}
-	}
+	ctx := context.TODO()
 
 	t.Run("shards count <= 1", func(t *testing.T) {
 		for i := 0; i < 2; i++ {
-			kp := makeKeyWrapper(i)
+			kp := NewKeyWrapper(ctx, i)
 			exp := key + ""
 			for i := 0; i < 100; i++ {
 				got := kp.WrapKey(key)
@@ -29,21 +25,9 @@ func TestKeyPostfix_Next(t *testing.T) {
 		}
 	})
 
-	t.Run("EmptyKeyWrapper", func(t *testing.T) {
-		const key = "key"
-
-		kw := EmptyKeyWrapper()
-		for i := 0; i < 100; i++ {
-			got := kw.WrapKey(key)
-			if got != key {
-				t.Fatalf("exp=%s | got=%s", key, got)
-			}
-		}
-	})
-
-	t.Run("shard count > 0", func(t *testing.T) {
+	t.Run("shard count > 1", func(t *testing.T) {
 		const shardsCount = 10
-		kp := makeKeyWrapper(shardsCount)
+		kp := NewKeyWrapper(context.TODO(), shardsCount)
 
 		if kp.shardsCount != shardsCount {
 			t.Fatalf("shards count should be equal %d", shardsCount)
