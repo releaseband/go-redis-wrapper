@@ -1,7 +1,6 @@
 package key_wrapper
 
 import (
-	"context"
 	"strconv"
 )
 
@@ -26,7 +25,7 @@ func makePostfixes(count int) []string {
 	return postfixes
 }
 
-func NewKeyWrapper(ctx context.Context, slotsCount int) *KeyWrapper {
+func NewKeyWrapper(slotsCount int) *KeyWrapper {
 	return &KeyWrapper{
 		shardsCount: slotsCount,
 		postfixes:   makePostfixes(slotsCount),
