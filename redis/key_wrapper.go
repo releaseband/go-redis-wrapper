@@ -48,6 +48,10 @@ func NewKeyWrapper(ctx context.Context, client BaseRedisClient) (*KeyWrapper, er
 	}, nil
 }
 
+func EmptyKeyWrapper() *KeyWrapper {
+	return &KeyWrapper{}
+}
+
 func (b *KeyWrapper) WrapKey(key string) string {
 	var postfix string
 	if b.shardsCount > 1 {

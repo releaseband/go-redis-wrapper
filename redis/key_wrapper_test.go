@@ -29,6 +29,18 @@ func TestKeyPostfix_Next(t *testing.T) {
 		}
 	})
 
+	t.Run("EmptyKeyWrapper", func(t *testing.T) {
+		const key = "key"
+
+		kw := EmptyKeyWrapper()
+		for i := 0; i < 100; i++ {
+			got := kw.WrapKey(key)
+			if got != key {
+				t.Fatalf("exp=%s | got=%s", key, got)
+			}
+		}
+	})
+
 	t.Run("shard count > 0", func(t *testing.T) {
 		const shardsCount = 10
 		kp := makeKeyWrapper(shardsCount)
