@@ -123,3 +123,16 @@ func (c BaseRedisClient) HSet(ctx context.Context, key string, val ...interface{
 func (c BaseRedisClient) HDel(ctx context.Context, key string, fields ...string) error {
 	return c.impl.HDel(ctx, key, fields...).Err()
 }
+
+func (c BaseRedisClient) SlotsCount(ctx context.Context) (int, error) {
+	if c.entity == entityCluster {
+		slots, err := c.impl.ClusterSlots(ctx).Result()
+		if err != nil {
+			return 0, err
+		}
+
+		return len(slots), nil
+	}
+
+	return 0, nil
+}
