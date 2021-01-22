@@ -14,6 +14,8 @@ const (
 	methodPing   = "Ping"
 )
 
+const redisEntity = "redis"
+
 type Metrics interface {
 	MeasureLatency(ctx context.Context, entity, method string, callback func())
 }
@@ -23,16 +25,16 @@ type RedisMetricsDecorator struct {
 	measure func(ctx context.Context, method string, callback func())
 }
 
-func measure(metrics Metrics, entity string) func(ctx context.Context, method string, callback func()) {
+func measure(metrics Metrics) func(ctx context.Context, method string, callback func()) {
 	return func(ctx context.Context, method string, callback func()) {
-		metrics.MeasureLatency(ctx, entity, method, callback)
+		metrics.MeasureLatency(ctx, redisEntity, method, callback)
 	}
 }
 
 func NewRedisMetricsDecorator(client RedisClient, metrics Metrics) RedisMetricsDecorator {
 	return RedisMetricsDecorator{
 		client:  client,
-		measure: measure(metrics, client.Entity()),
+		measure: measure(metrics),
 	}
 }
 
