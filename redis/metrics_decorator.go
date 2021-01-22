@@ -121,18 +121,6 @@ func (r RedisMetricsDecorator) Entity() string {
 	return r.client.Entity()
 }
 
-func (r RedisMetricsDecorator) HGetAll(ctx context.Context, key string) (map[string]string, error) {
-	return r.client.HGetAll(ctx, key)
-}
-
-func (r RedisMetricsDecorator) HSet(ctx context.Context, key string, val ...interface{}) error {
-	return r.client.HSet(ctx, key, val)
-}
-
-func (r RedisMetricsDecorator) HDel(ctx context.Context, key string, fields ...string) error {
-	return r.client.HDel(ctx, key, fields...)
-}
-
 func (r RedisMetricsDecorator) SlotsCount(ctx context.Context) (int, error) {
 	return r.client.SlotsCount(ctx)
 }
