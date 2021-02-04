@@ -127,4 +127,26 @@ func TestRedisClientMock(t *testing.T) {
 			}
 		},
 	)
+
+	internal.TestCase(t, "LLen")(
+		func(t *testing.T) {
+			expErr := errors.New("LLen failed")
+			mock.LLen(key)(0, expErr)
+
+			_, err := client.LLen(ctx, key)
+			checkErr(expErr, err)
+		},
+
+		func(t *testing.T) {
+			const expLen = 13
+
+			mock.LLen(key)(expLen, nil)
+
+			res, err := client.LLen(ctx, key)
+			checkErr(nil, err)
+			if res != expLen {
+				t.Fatalf("expResult should be equal gotResul")
+			}
+		},
+	)
 }

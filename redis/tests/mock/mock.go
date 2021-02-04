@@ -96,3 +96,15 @@ func (m *RedisClientMock) Status() func(interface{}, error) {
 		}
 	}
 }
+
+func (m *RedisClientMock) LLen(listKey string) func(int64, error) {
+	res := m.mock.ExpectLLen(listKey)
+
+	return func(i int64, err error) {
+		if err != nil {
+			res.SetErr(err)
+		} else {
+			res.SetVal(i)
+		}
+	}
+}

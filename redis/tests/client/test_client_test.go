@@ -47,33 +47,47 @@ func TestTestClient(t *testing.T) {
 				}
 			})
 
-			t.Run("RPush, LRange, LTrim", func(t *testing.T) {
+			t.Run("List", func(t *testing.T) {
 				const count = 10
 
 				makeVal := func(i int) string {
 					return val + strconv.Itoa(i)
 				}
 
-				for i := 0; i < count; i++ {
-					err := client.RPush(ctx, listKey, makeVal(i))
-					checkErr(nil, err)
-				}
-
-				results, err := client.LRange(ctx, listKey, 0, -1)
-				checkErr(nil, err)
-				if len(results) != count {
-					t.Fatal("len(gotResult) != len(expResult)")
-				}
-
-				for i, got := range results {
-					exp := makeVal(i)
-					if got != exp {
-						t.Fatalf("expResul := '%s', gotResult = '%s'", exp, got)
+				t.Run("RPush", func(t *testing.T) {
+					for i := 0; i < count; i++ {
+						err := client.RPush(ctx, listKey, makeVal(i))
+						checkErr(nil, err)
 					}
-				}
+				})
 
-				err = client.LTrim(ctx, listKey, 0, -1)
-				checkErr(nil, err)
+				t.Run("LLen", func(t *testing.T) {
+					res, err := client.LLen(ctx, listKey)
+					checkErr(nil, err)
+					if res != count {
+						t.Fatal("expRes should be equal gotRes")
+					}
+				})
+
+				t.Run("LRange", func(t *testing.T) {
+					results, err := client.LRange(ctx, listKey, 0, -1)
+					checkErr(nil, err)
+					if len(results) != count {
+						t.Fatal("len(gotResult) != len(expResult)")
+					}
+
+					for i, got := range results {
+						exp := makeVal(i)
+						if got != exp {
+							t.Fatalf("expResul := '%s', gotResult = '%s'", exp, got)
+						}
+					}
+				})
+
+				t.Run("LTrim", func(t *testing.T) {
+					err = client.LTrim(ctx, listKey, 0, -1)
+					checkErr(nil, err)
+				})
 			})
 		})
 }

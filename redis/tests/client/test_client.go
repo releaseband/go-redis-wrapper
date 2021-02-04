@@ -69,3 +69,7 @@ func (t *TestClient) SlotsCount(ctx context.Context) (int, error) {
 
 	return len(slots), nil
 }
+
+func (t *TestClient) LLen(ctx context.Context, listKey string) (int64, error) {
+	return t.client.LLen(ctx, listKey).Result()
+}

@@ -58,3 +58,7 @@ func (r RedisClientDb) SlotsCount(ctx context.Context) (int, error) {
 
 	return len(slots), nil
 }
+
+func (r RedisClientDb) LLen(ctx context.Context, listKey string) (int64, error) {
+	return r.db.LLen(ctx, listKey).Result()
+}

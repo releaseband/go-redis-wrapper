@@ -29,7 +29,7 @@ func ErrorChecker(t *testing.T) func(expErr, gotErr error) {
 		}
 
 		if !errors.Is(gotErr, expErr) {
-			t.Fatalf("expErr := '%s' ; gotErr := '%s'; gotErr should must be equal expErr",
+			t.Fatalf("expErr := '%s' ; gotErr := '%s': gotErr should must be equal expErr",
 				expErr.Error(), errors.Unwrap(gotErr))
 		}
 	}
