@@ -7,7 +7,7 @@ import (
 	"github.com/go-redis/redis/v8"
 )
 
-const entity = "test_client"
+const entity = "redis_mock"
 
 type RedisClientDb struct {
 	db *redis.Client

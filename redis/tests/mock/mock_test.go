@@ -4,16 +4,9 @@ import (
 	"context"
 	"errors"
 	"testing"
-)
 
-func testCase(t *testing.T, name string) func(failed, success func(t *testing.T)) {
-	return func(failed, success func(t *testing.T)) {
-		t.Run(name, func(t *testing.T) {
-			t.Run("failed", failed)
-			t.Run("success", success)
-		})
-	}
-}
+	"github.com/releaseband/go-redis-wrapper/redis/tests/internal"
+)
 
 func TestRedisClientMock(t *testing.T) {
 	const (
@@ -23,29 +16,11 @@ func TestRedisClientMock(t *testing.T) {
 		stop  = 20
 	)
 
-	checkErr := func(expErr, gotErr error) {
-		if gotErr == nil && expErr == nil {
-			return
-		}
-
-		if gotErr == nil && expErr != nil {
-			t.Fatal("the error received must not be nil")
-		}
-
-		if gotErr != nil && expErr == nil {
-			t.Fatalf("gotErr := '%s'; the error received must be nil", errors.Unwrap(gotErr))
-		}
-
-		if !errors.Is(gotErr, expErr) {
-			t.Fatalf("expErr := '%s' ; gotErr := '%s'; gotErr should must be equal expErr",
-				expErr.Error(), errors.Unwrap(gotErr))
-		}
-	}
-
 	ctx := context.TODO()
 	client, mock := NewRedisClientMock(true)
+	checkErr := internal.ErrorChecker(t)
 
-	testCase(t, "Set")(
+	internal.TestCase(t, "Set")(
 		func(t *testing.T) {
 			expErr := errors.New("set failed")
 			mock.Set(key, val, 0)(expErr)
@@ -60,7 +35,7 @@ func TestRedisClientMock(t *testing.T) {
 		},
 	)
 
-	testCase(t, "Get")(
+	internal.TestCase(t, "Get")(
 		func(t *testing.T) {
 			expErr := errors.New("get failed")
 			mock.Get(key)("", expErr)
@@ -80,7 +55,7 @@ func TestRedisClientMock(t *testing.T) {
 		},
 	)
 
-	testCase(t, "RPush")(
+	internal.TestCase(t, "RPush")(
 		func(t *testing.T) {
 			expErr := errors.New("rPush failed")
 			mock.RPush(key, val)(expErr)
@@ -96,7 +71,7 @@ func TestRedisClientMock(t *testing.T) {
 		},
 	)
 
-	testCase(t, "LRange")(
+	internal.TestCase(t, "LRange")(
 		func(t *testing.T) {
 			expErr := errors.New("LRange failed")
 			mock.LRange(key, start, stop)(nil, expErr)
@@ -118,7 +93,7 @@ func TestRedisClientMock(t *testing.T) {
 		},
 	)
 
-	testCase(t, "LTrim")(
+	internal.TestCase(t, "LTrim")(
 		func(t *testing.T) {
 			expErr := errors.New("lTrim failed")
 			mock.LTrim(key, start, stop)(expErr)
@@ -133,7 +108,7 @@ func TestRedisClientMock(t *testing.T) {
 		},
 	)
 
-	testCase(t, "Status")(
+	internal.TestCase(t, "Status")(
 		func(t *testing.T) {
 			expErr := errors.New("status failed")
 			mock.Status()(nil, expErr)
@@ -150,5 +125,6 @@ func TestRedisClientMock(t *testing.T) {
 			if res != expRes {
 				t.Fatalf("gotResult != expResul")
 			}
-		})
+		},
+	)
 }
