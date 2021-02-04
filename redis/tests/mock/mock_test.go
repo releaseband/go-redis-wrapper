@@ -20,6 +20,12 @@ func TestRedisClientMock(t *testing.T) {
 	client, mock := NewRedisClientMock(true)
 	checkErr := internal.ErrorChecker(t)
 
+	defer func() {
+		if err := mock.Done(); err != nil {
+			t.Fatal(err)
+		}
+	}()
+
 	internal.TestCase(t, "Set")(
 		func(t *testing.T) {
 			expErr := errors.New("set failed")

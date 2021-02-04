@@ -108,3 +108,7 @@ func (m *RedisClientMock) LLen(listKey string) func(int64, error) {
 		}
 	}
 }
+
+func (m *RedisClientMock) Done() error {
+	return m.mock.ExpectationsWereMet()
+}
