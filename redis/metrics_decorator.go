@@ -126,3 +126,7 @@ func (r RedisMetricsDecorator) Entity() string {
 func (r RedisMetricsDecorator) SlotsCount(ctx context.Context) (int, error) {
 	return r.client.SlotsCount(ctx)
 }
+
+func (r RedisMetricsDecorator) LLen(ctx context.Context, listKey string) (int64, error) {
+	return r.client.LLen(ctx, listKey)
+}

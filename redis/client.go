@@ -136,3 +136,7 @@ func (c BaseRedisClient) SlotsCount(ctx context.Context) (int, error) {
 
 	return 0, nil
 }
+
+func (c BaseRedisClient) LLen(ctx context.Context, listKey string) (int64, error) {
+	return c.impl.LLen(ctx, listKey).Result()
+}
