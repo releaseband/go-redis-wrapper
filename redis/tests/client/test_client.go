@@ -30,7 +30,7 @@ func MakeTestClient() (*TestClient, error) {
 }
 
 func (t *TestClient) RPush(ctx context.Context, listKey string, val ...interface{}) error {
-	return t.client.RPush(ctx, listKey, val).Err()
+	return t.client.RPush(ctx, listKey, val...).Err()
 }
 
 func (t *TestClient) LTrim(ctx context.Context, listKey string, start, stop int64) error {
