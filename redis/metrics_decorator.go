@@ -29,8 +29,8 @@ type RedisMetricsDecorator struct {
 	client RedisClient
 }
 
-func NewRedisMetricsDecorator(client RedisClient) RedisMetricsDecorator {
-	return RedisMetricsDecorator{
+func NewRedisMetricsDecorator(client RedisClient) *RedisMetricsDecorator {
+	return &RedisMetricsDecorator{
 		client: client,
 	}
 }
@@ -46,7 +46,7 @@ func record(ctx context.Context, start time.Time) {
 	}
 }
 
-func (r RedisMetricsDecorator) Set(ctx context.Context, key string, value interface{}, expiration time.Duration) error {
+func (r *RedisMetricsDecorator) Set(ctx context.Context, key string, value interface{}, expiration time.Duration) error {
 	ctx = wrapToLatencyContext(ctx, "Set")
 	start := measure.Start()
 	err := r.client.Set(ctx, key, value, expiration)
@@ -55,7 +55,7 @@ func (r RedisMetricsDecorator) Set(ctx context.Context, key string, value interf
 	return err
 }
 
-func (r RedisMetricsDecorator) Get(ctx context.Context, key string) (string, error) {
+func (r *RedisMetricsDecorator) Get(ctx context.Context, key string) (string, error) {
 	ctx = wrapToLatencyContext(ctx, "Get")
 	start := measure.Start()
 	resp, err := r.client.Get(ctx, key)
@@ -64,7 +64,7 @@ func (r RedisMetricsDecorator) Get(ctx context.Context, key string) (string, err
 	return resp, err
 }
 
-func (r RedisMetricsDecorator) RPush(ctx context.Context, listKey string, val ...interface{}) error {
+func (r *RedisMetricsDecorator) RPush(ctx context.Context, listKey string, val ...interface{}) error {
 	ctx = wrapToLatencyContext(ctx, "RPush")
 	start := measure.Start()
 	err := r.client.RPush(ctx, listKey, val)
@@ -73,7 +73,7 @@ func (r RedisMetricsDecorator) RPush(ctx context.Context, listKey string, val ..
 	return err
 }
 
-func (r RedisMetricsDecorator) LTrim(ctx context.Context, listKey string, start, stop int64) error {
+func (r *RedisMetricsDecorator) LTrim(ctx context.Context, listKey string, start, stop int64) error {
 	ctx = wrapToLatencyContext(ctx, "LTrim")
 	startTime := measure.Start()
 	err := r.client.LTrim(ctx, listKey, start, stop)
@@ -82,7 +82,7 @@ func (r RedisMetricsDecorator) LTrim(ctx context.Context, listKey string, start,
 	return err
 }
 
-func (r RedisMetricsDecorator) LRange(ctx context.Context, listKey string, start, stop int64) ([]string, error) {
+func (r *RedisMetricsDecorator) LRange(ctx context.Context, listKey string, start, stop int64) ([]string, error) {
 	ctx = wrapToLatencyContext(ctx, "LRange")
 	startTime := measure.Start()
 	resp, err := r.client.LRange(ctx, listKey, start, stop)
@@ -91,24 +91,28 @@ func (r RedisMetricsDecorator) LRange(ctx context.Context, listKey string, start
 	return resp, err
 }
 
-func (r RedisMetricsDecorator) Status() (interface{}, error) {
-	ctx := wrapToLatencyContext(context.Background(), "Ping")
+func (r *RedisMetricsDecorator) Ping(ctx context.Context) error {
+	ctx = wrapToLatencyContext(ctx, "Ping")
 	start := measure.Start()
-	resp, err := r.client.Status()
+	err := r.client.Ping(ctx)
 	record(ctx, start)
 
-	return resp, err
+	return err
 }
 
-func (r RedisMetricsDecorator) SlotsCount(ctx context.Context) (int, error) {
+func (r *RedisMetricsDecorator) SlotsCount(ctx context.Context) (int, error) {
 	return r.client.SlotsCount(ctx)
 }
 
-func (r RedisMetricsDecorator) LLen(ctx context.Context, listKey string) (int64, error) {
+func (r *RedisMetricsDecorator) LLen(ctx context.Context, listKey string) (int64, error) {
 	ctx = wrapToLatencyContext(ctx, "LLen")
 	start := measure.Start()
 	resp, err := r.client.LLen(ctx, listKey)
 	record(ctx, start)
 
 	return resp, err
+}
+
+func (r *RedisMetricsDecorator) ReadinessCheck() func(ctx context.Context) (interface{}, error) {
+	return makeReadinessCheckerFunc(r.Ping)
 }
