@@ -5,6 +5,8 @@ import (
 	"strconv"
 	"testing"
 
+	redisWrapper "github.com/releaseband/go-redis-wrapper/redis"
+
 	"github.com/go-redis/redis/v8"
 
 	"github.com/releaseband/go-redis-wrapper/redis/tests/internal"
@@ -90,4 +92,11 @@ func TestTestClient(t *testing.T) {
 				})
 			})
 		})
+}
+
+func TestImplementInterface(t *testing.T) {
+	var client redisWrapper.RedisClient
+
+	client, _ = MakeTestClient()
+	_ = client
 }
