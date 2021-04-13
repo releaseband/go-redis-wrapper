@@ -113,6 +113,6 @@ func (r *RedisMetricsDecorator) LLen(ctx context.Context, listKey string) (int64
 	return resp, err
 }
 
-func (r *RedisMetricsDecorator) ReadinessCheck() func(ctx context.Context) (interface{}, error) {
-	return makeReadinessCheckerFunc(r.Ping)
+func (r *RedisMetricsDecorator) ReadinessChecker(timeout time.Duration) *ReadinessChecker {
+	return NewReadinessChecker(timeout, r.Ping)
 }

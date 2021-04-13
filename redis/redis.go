@@ -14,15 +14,5 @@ type RedisClient interface {
 	Get(ctx context.Context, key string) (string, error)
 	Ping(ctx context.Context) error
 	SlotsCount(ctx context.Context) (int, error)
-	ReadinessCheck() func(ctx context.Context) (interface{}, error)
-}
-
-func makeReadinessCheckerFunc(ping func(ctx context.Context) error) func(ctx context.Context) (interface{}, error) {
-	return func(ctx context.Context) (interface{}, error) {
-		if err := ping(ctx); err != nil {
-			return nil, err
-		}
-
-		return "ok", nil
-	}
+	ReadinessChecker(timeout time.Duration) *ReadinessChecker
 }

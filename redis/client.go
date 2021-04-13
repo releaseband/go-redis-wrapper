@@ -128,6 +128,6 @@ func (c *BaseRedisClient) LLen(ctx context.Context, listKey string) (int64, erro
 	return c.impl.LLen(ctx, listKey).Result()
 }
 
-func (c *BaseRedisClient) ReadinessCheck() func(ctx context.Context) (interface{}, error) {
-	return makeReadinessCheckerFunc(c.ping)
+func (c *BaseRedisClient) ReadinessChecker(timeout time.Duration) *ReadinessChecker {
+	return NewReadinessChecker(timeout, c.ping)
 }
