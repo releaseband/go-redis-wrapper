@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"time"
 
+	redisWrapper "github.com/releaseband/go-redis-wrapper/redis"
+
 	"github.com/go-redis/redis/v8"
 
 	"github.com/alicebob/miniredis/v2"
@@ -49,12 +51,12 @@ func (t *TestClient) Get(ctx context.Context, key string) (string, error) {
 	return t.client.Get(ctx, key).Result()
 }
 
-func (t *TestClient) Status() (interface{}, error) {
-	if err := t.client.Ping(context.TODO()).Err(); err != nil {
-		return nil, err
-	}
+func (t *TestClient) Ping(ctx context.Context) error {
+	return t.client.Ping(ctx).Err()
+}
 
-	return "OK", nil
+func (t *TestClient) ReadinessChecker(timeout time.Duration) *redisWrapper.ReadinessChecker {
+	return redisWrapper.NewReadinessChecker(timeout, t.Ping)
 }
 
 func (t *TestClient) Entity() string {

@@ -12,7 +12,7 @@ type RedisClient interface {
 	LLen(ctx context.Context, listKey string) (int64, error)
 	Set(ctx context.Context, key string, value interface{}, expiration time.Duration) error
 	Get(ctx context.Context, key string) (string, error)
-	Status() (interface{}, error)
-	Entity() string
+	Ping(ctx context.Context) error
 	SlotsCount(ctx context.Context) (int, error)
+	ReadinessChecker(timeout time.Duration) *ReadinessChecker
 }

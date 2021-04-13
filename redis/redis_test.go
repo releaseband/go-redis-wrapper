@@ -10,6 +10,5 @@ func Test_implementation(t *testing.T) {
 	var client RedisClient
 	client = NewRedisSimple(&redis.Options{})
 	client = NewRedisCluster(&redis.ClusterOptions{})
-	client = NewRedisMetricsDecorator(client, nil)
-	client.Entity()
+	client = NewRedisMetricsDecorator(client)
 }
