@@ -2,8 +2,19 @@ package redis
 
 import (
 	"context"
+	"errors"
 	"time"
+
+	"github.com/go-redis/redis/v8"
 )
+
+var (
+	ErrNotFound = errors.New("not found")
+)
+
+func isNotFoundErr(err error) bool {
+	return err != nil && err == redis.Nil
+}
 
 type RedisClient interface {
 	RPush(ctx context.Context, listKey string, val ...interface{}) error
@@ -14,5 +25,6 @@ type RedisClient interface {
 	Get(ctx context.Context, key string) (string, error)
 	Ping(ctx context.Context) error
 	SlotsCount(ctx context.Context) (int, error)
+	Watch(ctx context.Context, txf func(tx *redis.Tx) error, key ...string) error
 	ReadinessChecker(timeout time.Duration) *ReadinessChecker
 }

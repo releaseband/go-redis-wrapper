@@ -12,10 +12,8 @@ import (
 	"github.com/alicebob/miniredis/v2"
 )
 
-const entity = "redis_test_client"
-
 type TestClient struct {
-	client *redis.Client
+	impl *redis.Client
 }
 
 func MakeTestClient() (*TestClient, error) {
@@ -28,43 +26,39 @@ func MakeTestClient() (*TestClient, error) {
 		Addr: mr.Addr(),
 	})
 
-	return &TestClient{client: client}, nil
+	return &TestClient{impl: client}, nil
 }
 
 func (t *TestClient) RPush(ctx context.Context, listKey string, val ...interface{}) error {
-	return t.client.RPush(ctx, listKey, val...).Err()
+	return t.impl.RPush(ctx, listKey, val...).Err()
 }
 
 func (t *TestClient) LTrim(ctx context.Context, listKey string, start, stop int64) error {
-	return t.client.LTrim(ctx, listKey, start, stop).Err()
+	return t.impl.LTrim(ctx, listKey, start, stop).Err()
 }
 
 func (t *TestClient) LRange(ctx context.Context, listKey string, start, stop int64) ([]string, error) {
-	return t.client.LRange(ctx, listKey, start, stop).Result()
+	return t.impl.LRange(ctx, listKey, start, stop).Result()
 }
 
 func (t *TestClient) Set(ctx context.Context, key string, value interface{}, expiration time.Duration) error {
-	return t.client.Set(ctx, key, value, expiration).Err()
+	return t.impl.Set(ctx, key, value, expiration).Err()
 }
 
 func (t *TestClient) Get(ctx context.Context, key string) (string, error) {
-	return t.client.Get(ctx, key).Result()
+	return t.impl.Get(ctx, key).Result()
 }
 
 func (t *TestClient) Ping(ctx context.Context) error {
-	return t.client.Ping(ctx).Err()
+	return t.impl.Ping(ctx).Err()
 }
 
 func (t *TestClient) ReadinessChecker(timeout time.Duration) *redisWrapper.ReadinessChecker {
 	return redisWrapper.NewReadinessChecker(timeout, t.Ping)
 }
 
-func (t *TestClient) Entity() string {
-	return entity
-}
-
 func (t *TestClient) SlotsCount(ctx context.Context) (int, error) {
-	slots, err := t.client.ClusterSlots(ctx).Result()
+	slots, err := t.impl.ClusterSlots(ctx).Result()
 	if err != nil {
 		return 0, err
 	}
@@ -73,5 +67,9 @@ func (t *TestClient) SlotsCount(ctx context.Context) (int, error) {
 }
 
 func (t *TestClient) LLen(ctx context.Context, listKey string) (int64, error) {
-	return t.client.LLen(ctx, listKey).Result()
+	return t.impl.LLen(ctx, listKey).Result()
+}
+
+func (t *TestClient) Watch(ctx context.Context, txf func(tx *redis.Tx) error, key ...string) error {
+	return t.impl.Watch(ctx, txf, key...)
 }

@@ -4,6 +4,8 @@ import (
 	"context"
 	"time"
 
+	"github.com/go-redis/redis/v8"
+
 	"github.com/releaseband/metrics/opencensus/views"
 
 	"go.opencensus.io/stats/view"
@@ -115,4 +117,8 @@ func (r *RedisMetricsDecorator) LLen(ctx context.Context, listKey string) (int64
 
 func (r *RedisMetricsDecorator) ReadinessChecker(timeout time.Duration) *ReadinessChecker {
 	return NewReadinessChecker(timeout, r.Ping)
+}
+
+func (r *RedisMetricsDecorator) Watch(ctx context.Context, txf func(tx *redis.Tx) error, key ...string) error {
+	return r.client.Watch(ctx, txf, key...)
 }
