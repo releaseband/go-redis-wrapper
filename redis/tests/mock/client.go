@@ -7,8 +7,6 @@ import (
 	"github.com/go-redis/redis/v8"
 )
 
-const entity = "redis_mock"
-
 type RedisClientDb struct {
 	db *redis.Client
 }
@@ -46,10 +44,6 @@ func (r RedisClientDb) Status() (interface{}, error) {
 	return "OK", nil
 }
 
-func (r RedisClientDb) Entity() string {
-	return entity
-}
-
 func (r RedisClientDb) SlotsCount(ctx context.Context) (int, error) {
 	slots, err := r.db.ClusterSlots(ctx).Result()
 	if err != nil {
@@ -61,4 +55,8 @@ func (r RedisClientDb) SlotsCount(ctx context.Context) (int, error) {
 
 func (r RedisClientDb) LLen(ctx context.Context, listKey string) (int64, error) {
 	return r.db.LLen(ctx, listKey).Result()
+}
+
+func (r RedisClientDb) Watch(ctx context.Context, txf func(tx *redis.Tx) error, key ...string) error {
+	return r.db.Watch(ctx, txf, key...)
 }
