@@ -11,7 +11,7 @@ type Cluster struct {
 	impl *redis.ClusterClient
 }
 
-func NewCluster(options *redis.ClusterOptions) *Cluster {
+func NewRedisCluster(options *redis.ClusterOptions) *Cluster {
 	return &Cluster{
 		impl: redis.NewClusterClient(options),
 	}

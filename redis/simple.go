@@ -11,7 +11,7 @@ type Simple struct {
 	impl *redis.Client
 }
 
-func NewSimple(opt *redis.Options) *Simple {
+func NewRedisSimple(opt *redis.Options) *Simple {
 	return &Simple{impl: redis.NewClient(opt)}
 }
 

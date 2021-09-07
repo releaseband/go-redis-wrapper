@@ -8,7 +8,7 @@ import (
 
 func Test_implementation(t *testing.T) {
 	var client RedisClient
-	client = NewSimple(&redis.Options{})
-	client = NewCluster(&redis.ClusterOptions{})
+	client = NewRedisSimple(&redis.Options{})
+	client = NewRedisCluster(&redis.ClusterOptions{})
 	client = NewRedisMetricsDecorator(client)
 }
