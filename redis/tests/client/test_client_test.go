@@ -7,8 +7,6 @@ import (
 
 	redisWrapper "github.com/releaseband/go-redis-wrapper/redis"
 
-	"github.com/go-redis/redis/v8"
-
 	"github.com/releaseband/go-redis-wrapper/redis/tests/internal"
 )
 
@@ -28,7 +26,7 @@ func TestTestClient(t *testing.T) {
 	internal.TestCase(t, "redis test client")(
 		func(t *testing.T) {
 			_, err = client.Get(ctx, key)
-			checkErr(redis.Nil, err)
+			checkErr(redisWrapper.ErrNotFound, err)
 
 			list, err := client.LRange(ctx, key, 0, 1)
 			checkErr(nil, err)

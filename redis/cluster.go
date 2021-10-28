@@ -19,7 +19,7 @@ func NewRedisCluster(options *redis.ClusterOptions) *Cluster {
 
 func (c *Cluster) Get(ctx context.Context, key string) (string, error) {
 	result, err := c.impl.Get(ctx, key).Result()
-	if isNotFoundErr(err) {
+	if IsNotFoundErr(err) {
 		err = ErrNotFound
 	}
 

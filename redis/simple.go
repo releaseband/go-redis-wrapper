@@ -37,7 +37,7 @@ func (s *Simple) Set(ctx context.Context, key string, value interface{}, expirat
 
 func (s *Simple) Get(ctx context.Context, key string) (string, error) {
 	result, err := s.impl.Get(ctx, key).Result()
-	if isNotFoundErr(err) {
+	if IsNotFoundErr(err) {
 		err = ErrNotFound
 	}
 

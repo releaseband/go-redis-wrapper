@@ -46,7 +46,12 @@ func (t *TestClient) Set(ctx context.Context, key string, value interface{}, exp
 }
 
 func (t *TestClient) Get(ctx context.Context, key string) (string, error) {
-	return t.impl.Get(ctx, key).Result()
+	res, err :=  t.impl.Get(ctx, key).Result()
+	if err != nil && redisWrapper.IsNotFoundErr(err) {
+		err = redisWrapper.ErrNotFound
+	}
+
+	return res, err
 }
 
 func (t *TestClient) Ping(ctx context.Context) error {

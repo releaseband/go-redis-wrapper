@@ -12,7 +12,7 @@ var (
 	ErrNotFound = errors.New("not found")
 )
 
-func isNotFoundErr(err error) bool {
+func IsNotFoundErr(err error) bool {
 	return err != nil && err == redis.Nil
 }
 
