@@ -78,3 +78,7 @@ func (t *TestClient) LLen(ctx context.Context, listKey string) (int64, error) {
 func (t *TestClient) Watch(ctx context.Context, txf func(tx *redis.Tx) error, key ...string) error {
 	return t.impl.Watch(ctx, txf, key...)
 }
+
+func (t *TestClient) SetEx(ctx context.Context, key string, val interface{}, expiration time.Duration) error {
+	return t.impl.SetEX(ctx, key, val, expiration).Err()
+}
