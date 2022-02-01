@@ -82,3 +82,7 @@ func (t *TestClient) Watch(ctx context.Context, txf func(tx *redis.Tx) error, ke
 func (t *TestClient) SetEx(ctx context.Context, key string, val interface{}, expiration time.Duration) error {
 	return t.impl.SetEX(ctx, key, val, expiration).Err()
 }
+
+func (t *TestClient) Impl() *redis.Client {
+	return t.impl
+}
