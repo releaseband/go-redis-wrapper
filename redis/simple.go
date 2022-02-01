@@ -71,3 +71,7 @@ func (s *Simple) Del(ctx context.Context, key string) error {
 func (s *Simple) Impl() redis.Cmdable {
 	return s.impl
 }
+
+func (s *Simple) Uc() redis.UniversalClient {
+	return s.impl
+}

@@ -80,3 +80,8 @@ func (c *Cluster) Del(ctx context.Context, key string) error {
 func (c *Cluster) Impl() redis.Cmdable {
 	return c.impl
 }
+
+func (c *Cluster) Uc() redis.UniversalClient {
+	return c.impl
+}
+

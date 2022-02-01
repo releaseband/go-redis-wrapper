@@ -30,4 +30,5 @@ type RedisClient interface {
 	ReadinessChecker(timeout time.Duration) *ReadinessChecker
 	Del(ctx context.Context, key string) error
 	Impl() redis.Cmdable
+	Uc() redis.UniversalClient
 }

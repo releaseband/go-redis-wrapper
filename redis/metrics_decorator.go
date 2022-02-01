@@ -144,3 +144,7 @@ func (r *RedisMetricsDecorator) Del(ctx context.Context, key string) error {
 func (r *RedisMetricsDecorator) Impl() redis.Cmdable {
 	return r.client.Impl()
 }
+
+func (r *RedisMetricsDecorator) Uc() redis.UniversalClient {
+	return r.client.Uc()
+}

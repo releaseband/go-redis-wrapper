@@ -94,3 +94,7 @@ func (t *TestClient) Del(ctx context.Context, key string) error {
 func (t *TestClient) SetEX(ctx context.Context, key string, value interface{}, expiration time.Duration) error {
 	return t.impl.SetEX(ctx, key, value, expiration).Err()
 }
+
+func (t *TestClient) Uc() redis.UniversalClient {
+	return t.impl
+}
