@@ -59,3 +59,15 @@ func (s *Simple) Watch(ctx context.Context, txf func(tx *redis.Tx) error, key ..
 func (s *Simple) ReadinessChecker(timeout time.Duration) *ReadinessChecker {
 	return NewReadinessChecker(timeout, s.Ping)
 }
+
+func (s *Simple) SetEX(ctx context.Context, key string, value interface{}, expiration time.Duration) error {
+	return s.impl.SetEX(ctx, key, value, expiration).Err()
+}
+
+func (s *Simple) Del(ctx context.Context, key string) error {
+	return s.impl.Del(ctx, key).Err()
+}
+
+func (s *Simple) Impl() redis.Cmdable {
+	return s.impl
+}

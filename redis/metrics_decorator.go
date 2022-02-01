@@ -122,3 +122,25 @@ func (r *RedisMetricsDecorator) ReadinessChecker(timeout time.Duration) *Readine
 func (r *RedisMetricsDecorator) Watch(ctx context.Context, txf func(tx *redis.Tx) error, key ...string) error {
 	return r.client.Watch(ctx, txf, key...)
 }
+
+func (r *RedisMetricsDecorator) SetEX(ctx context.Context, key string, value interface{}, expiration time.Duration) error {
+	ctx = wrapToLatencyContext(ctx, "SetEX")
+	start := measure.Start()
+	err := r.client.SetEX(ctx, key, value, expiration)
+	record(ctx, start)
+
+	return err
+}
+
+func (r *RedisMetricsDecorator) Del(ctx context.Context, key string) error {
+	ctx = wrapToLatencyContext(ctx, "Del")
+	start := measure.Start()
+	err := r.client.Del(ctx, key)
+	record(ctx, start)
+
+	return err
+}
+
+func (r *RedisMetricsDecorator) Impl() redis.Cmdable {
+	return r.client.Impl()
+}

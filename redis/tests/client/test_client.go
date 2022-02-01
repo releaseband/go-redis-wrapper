@@ -83,6 +83,14 @@ func (t *TestClient) SetEx(ctx context.Context, key string, val interface{}, exp
 	return t.impl.SetEX(ctx, key, val, expiration).Err()
 }
 
-func (t *TestClient) Impl() *redis.Client {
+func (t *TestClient) Impl() redis.Cmdable {
 	return t.impl
+}
+
+func (t *TestClient) Del(ctx context.Context, key string) error {
+	return t.impl.Del(ctx, key).Err()
+}
+
+func (t *TestClient) SetEX(ctx context.Context, key string, value interface{}, expiration time.Duration) error {
+	return t.impl.SetEX(ctx, key, value, expiration).Err()
 }

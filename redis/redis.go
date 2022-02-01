@@ -22,9 +22,12 @@ type RedisClient interface {
 	LRange(ctx context.Context, listKey string, start, stop int64) ([]string, error)
 	LLen(ctx context.Context, listKey string) (int64, error)
 	Set(ctx context.Context, key string, value interface{}, expiration time.Duration) error
+	SetEX(ctx context.Context, key string, value interface{}, expiration time.Duration) error
 	Get(ctx context.Context, key string) (string, error)
 	Ping(ctx context.Context) error
 	SlotsCount(ctx context.Context) (int, error)
 	Watch(ctx context.Context, txf func(tx *redis.Tx) error, key ...string) error
 	ReadinessChecker(timeout time.Duration) *ReadinessChecker
+	Del(ctx context.Context, key string) error
+	Impl() redis.Cmdable
 }

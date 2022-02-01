@@ -68,3 +68,15 @@ func (c *Cluster) ReadinessChecker(timeout time.Duration) *ReadinessChecker {
 func (c *Cluster) Watch(ctx context.Context, txf func(tx *redis.Tx) error, key ...string) error {
 	return c.impl.Watch(ctx, txf, key...)
 }
+
+func (c *Cluster) SetEX(ctx context.Context, key string, value interface{}, expiration time.Duration) error {
+	return c.impl.SetEX(ctx, key, value, expiration).Err()
+}
+
+func (c *Cluster) Del(ctx context.Context, key string) error {
+	return c.impl.Del(ctx, key).Err()
+}
+
+func (c *Cluster) Impl() redis.Cmdable {
+	return c.impl
+}
