@@ -148,3 +148,48 @@ func (r *RedisMetricsDecorator) Impl() redis.Cmdable {
 func (r *RedisMetricsDecorator) Uc() redis.UniversalClient {
 	return r.client.Uc()
 }
+
+func (r *RedisMetricsDecorator) Incr(ctx context.Context, key string) (int64, error) {
+	ctx = wrapToLatencyContext(ctx, "Incr")
+	start := measure.Start()
+	resp, err := r.client.Incr(ctx, key)
+	record(ctx, start)
+
+	return resp, err
+}
+
+func (r *RedisMetricsDecorator) HSet(ctx context.Context, key string, val ...interface{}) error {
+	ctx = wrapToLatencyContext(ctx, "HSet")
+	start := measure.Start()
+	err := r.client.HSet(ctx, key, val...)
+	record(ctx, start)
+
+	return err
+}
+
+func (r *RedisMetricsDecorator) HGet(ctx context.Context, key, field string) (string, error) {
+	ctx = wrapToLatencyContext(ctx, "HGet")
+	start := measure.Start()
+	resp, err := r.client.HGet(ctx, key, field)
+	record(ctx, start)
+
+	return resp, err
+}
+
+func (r *RedisMetricsDecorator) HGetAll(ctx context.Context, key string) (map[string]string, error) {
+	ctx = wrapToLatencyContext(ctx, "HGetAll")
+	start := measure.Start()
+	resp, err := r.client.HGetAll(ctx, key)
+	record(ctx, start)
+
+	return resp, err
+}
+
+func (r *RedisMetricsDecorator) HDel(ctx context.Context, key string) error {
+	ctx = wrapToLatencyContext(ctx, "HDel")
+	start := measure.Start()
+	err := r.client.HDel(ctx, key)
+	record(ctx, start)
+
+	return err
+}

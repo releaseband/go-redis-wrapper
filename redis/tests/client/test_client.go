@@ -46,7 +46,7 @@ func (t *TestClient) Set(ctx context.Context, key string, value interface{}, exp
 }
 
 func (t *TestClient) Get(ctx context.Context, key string) (string, error) {
-	res, err :=  t.impl.Get(ctx, key).Result()
+	res, err := t.impl.Get(ctx, key).Result()
 	if err != nil && redisWrapper.IsNotFoundErr(err) {
 		err = redisWrapper.ErrNotFound
 	}
@@ -97,4 +97,24 @@ func (t *TestClient) SetEX(ctx context.Context, key string, value interface{}, e
 
 func (t *TestClient) Uc() redis.UniversalClient {
 	return t.impl
+}
+
+func (t *TestClient) Incr(ctx context.Context, key string) (int64, error) {
+	return t.impl.Incr(ctx, key).Result()
+}
+
+func (t *TestClient) HSet(ctx context.Context, key string, val ...interface{}) error {
+	return t.impl.HSet(ctx, key, val...).Err()
+}
+
+func (t *TestClient) HGet(ctx context.Context, key, field string) (string, error) {
+	return t.impl.HGet(ctx, key, field).Result()
+}
+
+func (t *TestClient) HGetAll(ctx context.Context, key string) (map[string]string, error) {
+	return t.impl.HGetAll(ctx, key).Result()
+}
+
+func (t *TestClient) HDel(ctx context.Context, key string) error {
+	return t.impl.HDel(ctx, key).Err()
 }

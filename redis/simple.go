@@ -75,3 +75,23 @@ func (s *Simple) Impl() redis.Cmdable {
 func (s *Simple) Uc() redis.UniversalClient {
 	return s.impl
 }
+
+func (s *Simple) Incr(ctx context.Context, key string) (int64, error) {
+	return s.impl.Incr(ctx, key).Result()
+}
+
+func (s *Simple) HSet(ctx context.Context, key string, val ...interface{}) error {
+	return s.impl.HSet(ctx, key, val...).Err()
+}
+
+func (s *Simple) HGet(ctx context.Context, key, field string) (string, error) {
+	return s.impl.HGet(ctx, key, field).Result()
+}
+
+func (s *Simple) HGetAll(ctx context.Context, key string) (map[string]string, error) {
+	return s.impl.HGetAll(ctx, key).Result()
+}
+
+func (s *Simple) HDel(ctx context.Context, key string) error {
+	return s.impl.HDel(ctx, key).Err()
+}
