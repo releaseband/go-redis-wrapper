@@ -85,3 +85,22 @@ func (c *Cluster) Uc() redis.UniversalClient {
 	return c.impl
 }
 
+func (c *Cluster) Incr(ctx context.Context, key string) (int64, error) {
+	return c.impl.Incr(ctx, key).Result()
+}
+
+func (c *Cluster) HSet(ctx context.Context, key string, val ...interface{}) error {
+	return c.impl.HSet(ctx, key, val...).Err()
+}
+
+func (c *Cluster) HGet(ctx context.Context, key, field string) (string, error) {
+	return c.impl.HGet(ctx, key, field).Result()
+}
+
+func (c *Cluster) HGetAll(ctx context.Context, key string) (map[string]string, error) {
+	return c.impl.HGetAll(ctx, key).Result()
+}
+
+func (c *Cluster) HDel(ctx context.Context, key string) error {
+	return c.impl.HDel(ctx, key).Err()
+}
