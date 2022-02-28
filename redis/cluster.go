@@ -101,6 +101,6 @@ func (c *Cluster) HGetAll(ctx context.Context, key string) (map[string]string, e
 	return c.impl.HGetAll(ctx, key).Result()
 }
 
-func (c *Cluster) HDel(ctx context.Context, key string) error {
-	return c.impl.HDel(ctx, key).Err()
+func (c *Cluster) HDel(ctx context.Context, key string, field ...string) error {
+	return c.impl.HDel(ctx, key, field...).Err()
 }

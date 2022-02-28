@@ -33,7 +33,7 @@ type RedisClient interface {
 	HSet(ctx context.Context, key string, val ...interface{}) error
 	HGet(ctx context.Context, key, field string) (string, error)
 	HGetAll(ctx context.Context, key string) (map[string]string, error)
-	HDel(ctx context.Context, key string) error
+	HDel(ctx context.Context, key string, field ...string) error
 	Impl() redis.Cmdable
 	Uc() redis.UniversalClient
 }

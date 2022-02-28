@@ -115,6 +115,6 @@ func (t *TestClient) HGetAll(ctx context.Context, key string) (map[string]string
 	return t.impl.HGetAll(ctx, key).Result()
 }
 
-func (t *TestClient) HDel(ctx context.Context, key string) error {
-	return t.impl.HDel(ctx, key).Err()
+func (t *TestClient) HDel(ctx context.Context, key string, field ...string) error {
+	return t.impl.HDel(ctx, key, field...).Err()
 }

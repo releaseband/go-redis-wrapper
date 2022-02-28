@@ -185,10 +185,10 @@ func (r *RedisMetricsDecorator) HGetAll(ctx context.Context, key string) (map[st
 	return resp, err
 }
 
-func (r *RedisMetricsDecorator) HDel(ctx context.Context, key string) error {
+func (r *RedisMetricsDecorator) HDel(ctx context.Context, key string, field ...string) error {
 	ctx = wrapToLatencyContext(ctx, "HDel")
 	start := measure.Start()
-	err := r.client.HDel(ctx, key)
+	err := r.client.HDel(ctx, key, field...)
 	record(ctx, start)
 
 	return err

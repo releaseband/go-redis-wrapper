@@ -92,6 +92,6 @@ func (s *Simple) HGetAll(ctx context.Context, key string) (map[string]string, er
 	return s.impl.HGetAll(ctx, key).Result()
 }
 
-func (s *Simple) HDel(ctx context.Context, key string) error {
-	return s.impl.HDel(ctx, key).Err()
+func (s *Simple) HDel(ctx context.Context, key string, field ...string) error {
+	return s.impl.HDel(ctx, key, field...).Err()
 }
