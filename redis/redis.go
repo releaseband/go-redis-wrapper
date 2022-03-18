@@ -119,3 +119,9 @@ func (c Client) SlotsCount(ctx context.Context) (int, error) {
 func IsNotFoundErr(err error) bool {
 	return err != nil && err == redis.Nil
 }
+
+func (c *Client) Lock(ctx context.Context, key string) (func(ctx context.Context), error) {
+	return func(ctx context.Context) {
+		fmt.Println("REDIS LOCK NOT IMPLEMENTED SEE GRP-1163")
+	}, nil
+}
