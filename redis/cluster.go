@@ -2,18 +2,23 @@ package redis
 
 import (
 	"context"
-	"time"
-
 	"github.com/go-redis/redis/v8"
+	"github.com/go-redsync/redsync/v4"
+	"github.com/releaseband/go-redis-wrapper/internal"
+	"time"
 )
 
 type Cluster struct {
 	impl *redis.ClusterClient
+	rs   *redsync.Redsync
 }
 
 func NewRedisCluster(options *redis.ClusterOptions) *Cluster {
+	client := redis.NewClusterClient(options)
+
 	return &Cluster{
-		impl: redis.NewClusterClient(options),
+		impl: client,
+		rs:   internal.NewRedSync(client),
 	}
 }
 
@@ -103,4 +108,8 @@ func (c *Cluster) HGetAll(ctx context.Context, key string) (map[string]string, e
 
 func (c *Cluster) HDel(ctx context.Context, key string, field ...string) error {
 	return c.impl.HDel(ctx, key, field...).Err()
+}
+
+func (c *Cluster) Lock(ctx context.Context, key string, options ...redsync.Option) (*redsync.Mutex, error) {
+	return internal.Lock(ctx, c.rs, key, options...)
 }

@@ -6,6 +6,9 @@ import (
 	"fmt"
 	"github.com/alicebob/miniredis/v2"
 	"github.com/go-redis/redis/v8"
+	"github.com/go-redsync/redsync/v4"
+	"github.com/go-redsync/redsync/v4/redis/goredis/v8"
+	"github.com/releaseband/go-redis-wrapper/internal"
 )
 
 var (
@@ -23,19 +26,30 @@ const (
 
 type Client struct {
 	redis.Cmdable
+	rs   *redsync.Redsync
 	Type uint8
 }
 
+func newRedSync(client redis.UniversalClient) *redsync.Redsync {
+	return redsync.New(goredis.NewPool(client))
+}
+
 func NewClusterClient(opt *redis.ClusterOptions) *Client {
+	client := redis.NewClusterClient(opt)
+
 	return &Client{
-		Cmdable: redis.NewClusterClient(opt),
+		Cmdable: client,
+		rs:      newRedSync(client),
 		Type:    ClusterClient,
 	}
 }
 
 func NewClient(opt *redis.Options) *Client {
+	client := redis.NewClient(opt)
+
 	return &Client{
-		Cmdable: redis.NewClient(opt),
+		Cmdable: client,
+		rs:      newRedSync(client),
 		Type:    SimpleClient,
 	}
 }
@@ -46,14 +60,15 @@ func MakeTestClient() (*Client, error) {
 		return nil, fmt.Errorf("miniredis.Run: %w", err)
 	}
 
-	client := &Client{
-		Type: TestClient,
-		Cmdable: redis.NewClient(&redis.Options{
-			Addr: mr.Addr(),
-		}),
-	}
+	client := redis.NewClient(&redis.Options{
+		Addr: mr.Addr(),
+	})
 
-	return client, nil
+	return &Client{
+		Type:    TestClient,
+		rs:      newRedSync(client),
+		Cmdable: client,
+	}, nil
 }
 
 func CastToRedisCluster(client redis.Cmdable) (*redis.ClusterClient, error) {
@@ -118,4 +133,8 @@ func (c Client) SlotsCount(ctx context.Context) (int, error) {
 
 func IsNotFoundErr(err error) bool {
 	return err != nil && err == redis.Nil
+}
+
+func (c *Client) Lock(ctx context.Context, key string, options ...redsync.Option) (*redsync.Mutex, error) {
+	return internal.Lock(ctx, c.rs, key, options...)
 }

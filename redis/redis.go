@@ -3,6 +3,7 @@ package redis
 import (
 	"context"
 	"errors"
+	"github.com/go-redsync/redsync/v4"
 	"time"
 
 	"github.com/go-redis/redis/v8"
@@ -36,4 +37,5 @@ type RedisClient interface {
 	HDel(ctx context.Context, key string, field ...string) error
 	Impl() redis.Cmdable
 	Uc() redis.UniversalClient
+	Lock(ctx context.Context, key string, opt ...redsync.Option) (*redsync.Mutex, error)
 }
