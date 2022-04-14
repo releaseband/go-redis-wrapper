@@ -1,21 +1,12 @@
-package redis
+package go_redis_wrapper
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"github.com/alicebob/miniredis/v2"
 	"github.com/go-redis/redis/v8"
 	"github.com/go-redsync/redsync/v4"
 	"github.com/go-redsync/redsync/v4/redis/goredis/v8"
-	"github.com/releaseband/go-redis-wrapper/v2/internal"
-	"time"
-)
-
-var (
-	ErrPingNotImplemented       = errors.New("ping not implemented for this redis client type")
-	ErrSlotsCountNotImplemented = errors.New("slots count not implemented for this client type")
-	ErrCastToClusterClient      = errors.New("cast to redis cluster client failed")
 )
 
 const (
@@ -55,7 +46,7 @@ func NewClient(opt *redis.Options) *Client {
 	}
 }
 
-func MakeTestClient() (*Client, error) {
+func StartMiniRedis() (*Client, error) {
 	mr, err := miniredis.Run()
 	if err != nil {
 		return nil, fmt.Errorf("miniredis.Run: %w", err)
@@ -132,39 +123,12 @@ func (c Client) SlotsCount(ctx context.Context) (int, error) {
 	}
 }
 
-func IsNotFoundErr(err error) bool {
-	return err != nil && err == redis.Nil
-}
-
 func (c *Client) Lock(ctx context.Context, key string, options ...redsync.Option) (*redsync.Mutex, error) {
-	return internal.Lock(ctx, c.rs, key, options...)
-}
+	mutex := c.rs.NewMutex(key, options...)
 
-type Options struct {
-	Expire time.Duration
-	Tries  int
-}
-
-func (o Options) makeOptionsList() []redsync.Option {
-	options := make([]redsync.Option, 0, 2)
-
-	if o.Expire != 0 {
-		options = append(options, redsync.WithExpiry(o.Expire))
-	}
-
-	if o.Tries > 0 {
-		options = append(options, redsync.WithTries(o.Tries))
-	}
-
-	return options
-}
-
-func (c *Client) LockWithOptions(ctx context.Context, key string, opt Options) (
-	func(ctx context.Context) (bool, error), error) {
-	m, err := c.Lock(ctx, key, opt.makeOptionsList()...)
-	if err != nil {
+	if err := mutex.LockContext(ctx); err != nil {
 		return nil, err
 	}
 
-	return m.UnlockContext, nil
+	return mutex, nil
 }
