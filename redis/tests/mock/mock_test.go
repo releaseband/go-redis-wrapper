@@ -5,7 +5,7 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/releaseband/go-redis-wrapper/redis/tests/internal"
+	"github.com/releaseband/go-redis-wrapper/v2/redis/tests/internal"
 )
 
 func TestRedisClientMock(t *testing.T) {

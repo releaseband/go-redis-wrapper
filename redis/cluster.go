@@ -4,7 +4,7 @@ import (
 	"context"
 	"github.com/go-redis/redis/v8"
 	"github.com/go-redsync/redsync/v4"
-	"github.com/releaseband/go-redis-wrapper/internal"
+	"github.com/releaseband/go-redis-wrapper/v2/internal"
 	"time"
 )
 

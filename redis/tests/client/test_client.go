@@ -4,10 +4,10 @@ import (
 	"context"
 	"fmt"
 	"github.com/go-redsync/redsync/v4"
-	"github.com/releaseband/go-redis-wrapper/internal"
+	"github.com/releaseband/go-redis-wrapper/v2/internal"
 	"time"
 
-	redisWrapper "github.com/releaseband/go-redis-wrapper/redis"
+	redisWrapper "github.com/releaseband/go-redis-wrapper/v2/redis"
 
 	"github.com/go-redis/redis/v8"
 

@@ -5,9 +5,9 @@ import (
 	"strconv"
 	"testing"
 
-	redisWrapper "github.com/releaseband/go-redis-wrapper/redis"
+	redisWrapper "github.com/releaseband/go-redis-wrapper/v2/redis"
 
-	"github.com/releaseband/go-redis-wrapper/redis/tests/internal"
+	"github.com/releaseband/go-redis-wrapper/v2/redis/tests/internal"
 )
 
 func TestTestClient(t *testing.T) {
