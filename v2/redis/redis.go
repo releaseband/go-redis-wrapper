@@ -9,6 +9,7 @@ import (
 	"github.com/go-redsync/redsync/v4"
 	"github.com/go-redsync/redsync/v4/redis/goredis/v8"
 	"github.com/releaseband/go-redis-wrapper/internal"
+	"time"
 )
 
 var (
@@ -137,4 +138,33 @@ func IsNotFoundErr(err error) bool {
 
 func (c *Client) Lock(ctx context.Context, key string, options ...redsync.Option) (*redsync.Mutex, error) {
 	return internal.Lock(ctx, c.rs, key, options...)
+}
+
+type Options struct {
+	Expire time.Duration
+	Tries  int
+}
+
+func (o Options) makeOptionsList() []redsync.Option {
+	options := make([]redsync.Option, 0, 2)
+
+	if o.Expire != 0 {
+		options = append(options, redsync.WithExpiry(o.Expire))
+	}
+
+	if o.Tries > 0 {
+		options = append(options, redsync.WithTries(o.Tries))
+	}
+
+	return options
+}
+
+func (c *Client) LockWithOptions(ctx context.Context, key string, opt Options) (
+	func(ctx context.Context) (bool, error), error) {
+	m, err := c.Lock(ctx, key, opt.makeOptionsList()...)
+	if err != nil {
+		return nil, err
+	}
+
+	return m.UnlockContext, nil
 }
