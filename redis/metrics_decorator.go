@@ -2,6 +2,7 @@ package redis
 
 import (
 	"context"
+	"github.com/go-redsync/redsync/v4"
 	"time"
 
 	"github.com/go-redis/redis/v8"
@@ -192,4 +193,13 @@ func (r *RedisMetricsDecorator) HDel(ctx context.Context, key string, field ...s
 	record(ctx, start)
 
 	return err
+}
+
+func (r *RedisMetricsDecorator) Lock(ctx context.Context, key string, options ...redsync.Option) (*redsync.Mutex, error) {
+	ctx = wrapToLatencyContext(ctx, "Lock")
+	start := measure.Start()
+	mutex, err := r.client.Lock(ctx, key, options...)
+	record(ctx, start)
+
+	return mutex, err
 }

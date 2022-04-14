@@ -2,6 +2,8 @@ package redis
 
 import (
 	"context"
+	"github.com/go-redsync/redsync/v4"
+	"github.com/releaseband/go-redis-wrapper/internal"
 	"time"
 
 	"github.com/go-redis/redis/v8"
@@ -9,10 +11,16 @@ import (
 
 type Simple struct {
 	impl *redis.Client
+	rs   *redsync.Redsync
 }
 
 func NewRedisSimple(opt *redis.Options) *Simple {
-	return &Simple{impl: redis.NewClient(opt)}
+	client := redis.NewClient(opt)
+
+	return &Simple{
+		impl: client,
+		rs:   internal.NewRedSync(client),
+	}
 }
 
 func (s *Simple) RPush(ctx context.Context, listKey string, val ...interface{}) error {
@@ -94,4 +102,8 @@ func (s *Simple) HGetAll(ctx context.Context, key string) (map[string]string, er
 
 func (s *Simple) HDel(ctx context.Context, key string, field ...string) error {
 	return s.impl.HDel(ctx, key, field...).Err()
+}
+
+func (s *Simple) Lock(ctx context.Context, key string, options ...redsync.Option) (*redsync.Mutex, error) {
+	return internal.Lock(ctx, s.rs, key, options...)
 }

@@ -3,6 +3,8 @@ package client
 import (
 	"context"
 	"fmt"
+	"github.com/go-redsync/redsync/v4"
+	"github.com/releaseband/go-redis-wrapper/internal"
 	"time"
 
 	redisWrapper "github.com/releaseband/go-redis-wrapper/redis"
@@ -14,6 +16,7 @@ import (
 
 type TestClient struct {
 	impl *redis.Client
+	rs   *redsync.Redsync
 }
 
 func MakeTestClient() (*TestClient, error) {
@@ -26,7 +29,10 @@ func MakeTestClient() (*TestClient, error) {
 		Addr: mr.Addr(),
 	})
 
-	return &TestClient{impl: client}, nil
+	return &TestClient{
+		impl: client,
+		rs:   internal.NewRedSync(client),
+	}, nil
 }
 
 func (t *TestClient) RPush(ctx context.Context, listKey string, val ...interface{}) error {
@@ -117,4 +123,8 @@ func (t *TestClient) HGetAll(ctx context.Context, key string) (map[string]string
 
 func (t *TestClient) HDel(ctx context.Context, key string, field ...string) error {
 	return t.impl.HDel(ctx, key, field...).Err()
+}
+
+func (t *TestClient) Lock(ctx context.Context, key string, options ...redsync.Option) (*redsync.Mutex, error) {
+	return internal.Lock(ctx, t.rs, key, options...)
 }
