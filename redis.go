@@ -10,10 +10,10 @@ import (
 )
 
 const (
-	Empty uint8 = iota
-	SimpleClient
-	ClusterClient
-	TestClient
+	empty uint8 = iota
+	simpleClientType
+	clusterClientType
+	testClientType
 )
 
 type Client struct {
@@ -26,24 +26,20 @@ func newRedSync(client redis.UniversalClient) *redsync.Redsync {
 	return redsync.New(goredis.NewPool(client))
 }
 
-func NewClusterClient(opt *redis.ClusterOptions) *Client {
-	client := redis.NewClusterClient(opt)
-
+func newClient(uc redis.UniversalClient, _type uint8) *Client {
 	return &Client{
-		Cmdable: client,
-		rs:      newRedSync(client),
-		Type:    ClusterClient,
+		Cmdable: uc,
+		rs:      newRedSync(uc),
+		Type:    _type,
 	}
 }
 
-func NewClient(opt *redis.Options) *Client {
-	client := redis.NewClient(opt)
+func NewClusterClient(opt *redis.ClusterOptions) *Client {
+	return newClient(redis.NewClusterClient(opt), clusterClientType)
+}
 
-	return &Client{
-		Cmdable: client,
-		rs:      newRedSync(client),
-		Type:    SimpleClient,
-	}
+func NewClient(opt *redis.Options) *Client {
+	return newClient(redis.NewClient(opt), simpleClientType)
 }
 
 func StartMiniRedis() (*Client, error) {
@@ -52,15 +48,23 @@ func StartMiniRedis() (*Client, error) {
 		return nil, fmt.Errorf("miniredis.Run: %w", err)
 	}
 
-	client := redis.NewClient(&redis.Options{
+	uc := redis.NewClient(&redis.Options{
 		Addr: mr.Addr(),
 	})
 
-	return &Client{
-		Type:    TestClient,
-		rs:      newRedSync(client),
-		Cmdable: client,
-	}, nil
+	return newClient(uc, testClientType), nil
+}
+
+func ClientAdapter(uc redis.UniversalClient, _type uint8) (*Client, error) {
+	switch _type {
+	case simpleClientType, clusterClientType, testClientType:
+	//
+	default:
+		return nil, ErrInvalidClientType
+
+	}
+
+	return newClient(uc, _type), nil
 }
 
 func CastToRedisCluster(client redis.Cmdable) (*redis.ClusterClient, error) {
@@ -89,9 +93,9 @@ func SimplePing(ctx context.Context, client redis.Cmdable) error {
 
 func (c Client) Ping(ctx context.Context) error {
 	switch c.Type {
-	case ClusterClient:
+	case clusterClientType:
 		return ClusterPing(ctx, c.Cmdable)
-	case SimpleClient, TestClient:
+	case simpleClientType, testClientType:
 		return SimplePing(ctx, c.Cmdable)
 	default:
 		return fmt.Errorf("clientType=%d: %w", c.Type, ErrPingNotImplemented)
@@ -114,9 +118,9 @@ func ClusterSlotsCount(ctx context.Context, client redis.Cmdable) (int, error) {
 
 func (c Client) SlotsCount(ctx context.Context) (int, error) {
 	switch c.Type {
-	case ClusterClient:
+	case clusterClientType:
 		return ClusterSlotsCount(ctx, c.Cmdable)
-	case SimpleClient, TestClient:
+	case simpleClientType, testClientType:
 		return 0, nil
 	default:
 		return 0, fmt.Errorf("clientType=%d: %w", c.Type, ErrSlotsCountNotImplemented)

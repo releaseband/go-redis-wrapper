@@ -9,6 +9,7 @@ var (
 	ErrPingNotImplemented       = errors.New("ping not implemented for this redis client type")
 	ErrSlotsCountNotImplemented = errors.New("slots count not implemented for this client type")
 	ErrCastToClusterClient      = errors.New("cast to redis cluster client failed")
+	ErrInvalidClientType        = errors.New("invalid client type")
 )
 
 func IsNotFoundErr(err error) bool {
