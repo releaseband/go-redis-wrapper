@@ -27,6 +27,7 @@ func RedisMetricsView() *view.View {
 		[]tag.Key{methodKey})
 }
 
+//deprecated
 type RedisMetricsDecorator struct {
 	client RedisClient
 }
@@ -46,6 +47,10 @@ func record(ctx context.Context, start time.Time) {
 	if latency != nil {
 		latency.Record(ctx, measure.End(start))
 	}
+}
+
+func (r RedisMetricsDecorator) ClientType() uint8 {
+	return r.client.ClientType()
 }
 
 func (r *RedisMetricsDecorator) Set(ctx context.Context, key string, value interface{}, expiration time.Duration) error {

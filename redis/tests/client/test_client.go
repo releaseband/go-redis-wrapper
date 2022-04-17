@@ -12,6 +12,9 @@ import (
 	"github.com/alicebob/miniredis/v2"
 )
 
+const testClientType = 3
+
+//deprecated: use v2
 type TestClient struct {
 	impl *redis.Client
 }
@@ -27,6 +30,10 @@ func MakeTestClient() (*TestClient, error) {
 	})
 
 	return &TestClient{impl: client}, nil
+}
+
+func (t TestClient) ClientType() uint8 {
+	return testClientType
 }
 
 func (t *TestClient) RPush(ctx context.Context, listKey string, val ...interface{}) error {

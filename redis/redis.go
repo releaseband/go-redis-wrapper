@@ -16,6 +16,7 @@ func IsNotFoundErr(err error) bool {
 	return err != nil && err == redis.Nil
 }
 
+//deprecated: use v2
 type RedisClient interface {
 	RPush(ctx context.Context, listKey string, val ...interface{}) error
 	LTrim(ctx context.Context, listKey string, start, stop int64) error
@@ -36,4 +37,5 @@ type RedisClient interface {
 	HDel(ctx context.Context, key string, field ...string) error
 	Impl() redis.Cmdable
 	Uc() redis.UniversalClient
+	ClientType() uint8
 }

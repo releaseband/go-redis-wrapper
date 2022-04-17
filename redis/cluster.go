@@ -7,6 +7,9 @@ import (
 	"github.com/go-redis/redis/v8"
 )
 
+const clusterClientType = 2
+
+//deprecated: use v2
 type Cluster struct {
 	impl *redis.ClusterClient
 }
@@ -15,6 +18,10 @@ func NewRedisCluster(options *redis.ClusterOptions) *Cluster {
 	return &Cluster{
 		impl: redis.NewClusterClient(options),
 	}
+}
+
+func (c *Cluster) ClientType() uint8 {
+	return clusterClientType
 }
 
 func (c *Cluster) Get(ctx context.Context, key string) (string, error) {

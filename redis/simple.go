@@ -7,12 +7,19 @@ import (
 	"github.com/go-redis/redis/v8"
 )
 
+const simpleClientType = 1
+
+//deprecated: use v2
 type Simple struct {
 	impl *redis.Client
 }
 
 func NewRedisSimple(opt *redis.Options) *Simple {
 	return &Simple{impl: redis.NewClient(opt)}
+}
+
+func (s Simple) ClientType() uint8 {
+	return simpleClientType
 }
 
 func (s *Simple) RPush(ctx context.Context, listKey string, val ...interface{}) error {
