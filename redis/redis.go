@@ -22,21 +22,21 @@ const (
 )
 
 type Client struct {
-	redis.Cmdable
+	redis.UniversalClient
 	Type uint8
 }
 
 func NewClusterClient(opt *redis.ClusterOptions) *Client {
 	return &Client{
-		Cmdable: redis.NewClusterClient(opt),
-		Type:    ClusterClient,
+		UniversalClient: redis.NewClusterClient(opt),
+		Type:            ClusterClient,
 	}
 }
 
 func NewClient(opt *redis.Options) *Client {
 	return &Client{
-		Cmdable: redis.NewClient(opt),
-		Type:    SimpleClient,
+		UniversalClient: redis.NewClient(opt),
+		Type:            SimpleClient,
 	}
 }
 
@@ -48,7 +48,7 @@ func MakeTestClient() (*Client, error) {
 
 	client := &Client{
 		Type: TestClient,
-		Cmdable: redis.NewClient(&redis.Options{
+		UniversalClient: redis.NewClient(&redis.Options{
 			Addr: mr.Addr(),
 		}),
 	}
@@ -65,7 +65,7 @@ func CastToRedisCluster(client redis.Cmdable) (*redis.ClusterClient, error) {
 	return cluster, nil
 }
 
-func ClusterPing(ctx context.Context, client redis.Cmdable) error {
+func ClusterPing(ctx context.Context, client redis.UniversalClient) error {
 	cluster, err := CastToRedisCluster(client)
 	if err != nil {
 		return err
@@ -83,9 +83,9 @@ func SimplePing(ctx context.Context, client redis.Cmdable) error {
 func (c Client) Ping(ctx context.Context) error {
 	switch c.Type {
 	case ClusterClient:
-		return ClusterPing(ctx, c.Cmdable)
+		return ClusterPing(ctx, c.UniversalClient)
 	case SimpleClient, TestClient:
-		return SimplePing(ctx, c.Cmdable)
+		return SimplePing(ctx, c.UniversalClient)
 	default:
 		return fmt.Errorf("clientType=%d: %w", c.Type, ErrPingNotImplemented)
 	}
@@ -108,7 +108,7 @@ func ClusterSlotsCount(ctx context.Context, client redis.Cmdable) (int, error) {
 func (c Client) SlotsCount(ctx context.Context) (int, error) {
 	switch c.Type {
 	case ClusterClient:
-		return ClusterSlotsCount(ctx, c.Cmdable)
+		return ClusterSlotsCount(ctx, c.UniversalClient)
 	case SimpleClient, TestClient:
 		return 0, nil
 	default:
