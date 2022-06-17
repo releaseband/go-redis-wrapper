@@ -17,7 +17,7 @@ const (
 )
 
 type Client struct {
-	redis.Cmdable
+	redis.UniversalClient
 	rs   *redsync.Redsync
 	Type uint8
 }
@@ -28,9 +28,9 @@ func newRedSync(client redis.UniversalClient) *redsync.Redsync {
 
 func newClient(uc redis.UniversalClient, _type uint8) *Client {
 	return &Client{
-		Cmdable: uc,
-		rs:      newRedSync(uc),
-		Type:    _type,
+		UniversalClient: uc,
+		rs:              newRedSync(uc),
+		Type:            _type,
 	}
 }
 
@@ -67,7 +67,7 @@ func ClientAdapter(uc redis.UniversalClient, _type uint8) (*Client, error) {
 	return newClient(uc, _type), nil
 }
 
-func CastToRedisCluster(client redis.Cmdable) (*redis.ClusterClient, error) {
+func CastToRedisCluster(client redis.UniversalClient) (*redis.ClusterClient, error) {
 	cluster, ok := client.(*redis.ClusterClient)
 	if !ok {
 		return nil, ErrCastToClusterClient
@@ -76,7 +76,7 @@ func CastToRedisCluster(client redis.Cmdable) (*redis.ClusterClient, error) {
 	return cluster, nil
 }
 
-func ClusterPing(ctx context.Context, client redis.Cmdable) error {
+func ClusterPing(ctx context.Context, client redis.UniversalClient) error {
 	cluster, err := CastToRedisCluster(client)
 	if err != nil {
 		return err
@@ -94,15 +94,15 @@ func SimplePing(ctx context.Context, client redis.Cmdable) error {
 func (c Client) Ping(ctx context.Context) error {
 	switch c.Type {
 	case clusterClientType:
-		return ClusterPing(ctx, c.Cmdable)
+		return ClusterPing(ctx, c.UniversalClient)
 	case simpleClientType, testClientType:
-		return SimplePing(ctx, c.Cmdable)
+		return SimplePing(ctx, c.UniversalClient)
 	default:
 		return fmt.Errorf("clientType=%d: %w", c.Type, ErrPingNotImplemented)
 	}
 }
 
-func ClusterSlotsCount(ctx context.Context, client redis.Cmdable) (int, error) {
+func ClusterSlotsCount(ctx context.Context, client redis.UniversalClient) (int, error) {
 	cluster, err := CastToRedisCluster(client)
 	if err != nil {
 		return 0, err
@@ -119,7 +119,7 @@ func ClusterSlotsCount(ctx context.Context, client redis.Cmdable) (int, error) {
 func (c Client) SlotsCount(ctx context.Context) (int, error) {
 	switch c.Type {
 	case clusterClientType:
-		return ClusterSlotsCount(ctx, c.Cmdable)
+		return ClusterSlotsCount(ctx, c.UniversalClient)
 	case simpleClientType, testClientType:
 		return 0, nil
 	default:
