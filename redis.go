@@ -34,20 +34,20 @@ func newClient(uc redis.UniversalClient, _type uint8) *Client {
 	}
 }
 
-func configure(cli redis.UniversalClient) {
+func addHooks(cli redis.UniversalClient) {
 	cli.AddHook(newRedisHookMetrics())
 }
 
 func NewClusterClient(opt *redis.ClusterOptions) *Client {
 	cli := newClient(redis.NewClusterClient(opt), clusterClientType)
-	configure(cli.UniversalClient)
+	addHooks(cli.UniversalClient)
 
 	return cli
 }
 
 func NewClient(opt *redis.Options) *Client {
 	cli := newClient(redis.NewClient(opt), simpleClientType)
-	configure(cli.UniversalClient)
+	addHooks(cli.UniversalClient)
 
 	return cli
 }
@@ -63,7 +63,7 @@ func StartMiniRedis() (*Client, error) {
 	})
 
 	cli := newClient(uc, testClientType)
-	configure(cli.UniversalClient)
+	addHooks(cli.UniversalClient)
 
 	return cli, nil
 }
