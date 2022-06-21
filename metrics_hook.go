@@ -18,26 +18,17 @@ const (
 
 type timeCtx struct{}
 
-func getRedisHistogramName() string {
-	return getPrefix() + "." + redisHistogramName
-}
-
 var (
 	meter      = global.MeterProvider().Meter(getPrefix() + ".redis")
 	measure, _ = meter.SyncFloat64().Histogram(
-		getRedisHistogramName(),
+		getPrefix()+"."+redisHistogramName,
 		instrument.WithDescription("redis duration in seconds"),
 		instrument.WithUnit("sec"),
 	)
 )
 
 func getPrefix() string {
-	prefix := os.Getenv(prefixEnvKey)
-	if prefix == "" {
-		return prefixEnvKey
-	}
-
-	return prefix
+	return os.Getenv(prefixEnvKey)
 }
 
 type redisHookMetrics struct {
