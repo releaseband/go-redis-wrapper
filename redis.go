@@ -34,7 +34,9 @@ func newRedSync(client redis.UniversalClient) *redsync.Redsync {
 }
 
 func newClient(uc redis.UniversalClient, _type uint8) *Client {
-	uc.AddHook(newRedisHookMetrics())
+	if _type != testClientType {
+		uc.AddHook(newRedisHookMetrics())
+	}
 
 	return &Client{
 		UniversalClient: uc,
