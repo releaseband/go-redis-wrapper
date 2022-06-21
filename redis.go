@@ -102,7 +102,7 @@ func SimplePing(ctx context.Context, client redis.Cmdable) error {
 	return client.Ping(ctx).Err()
 }
 
-func (c Client) Ping(ctx context.Context) error {
+func (c *Client) Ping(ctx context.Context) error {
 	switch c.Type {
 	case clusterClientType:
 		return ClusterPing(ctx, c.UniversalClient)
@@ -111,6 +111,14 @@ func (c Client) Ping(ctx context.Context) error {
 	default:
 		return fmt.Errorf("clientType=%d: %w", c.Type, ErrPingNotImplemented)
 	}
+}
+
+func (c *Client) Status() (interface{}, error) {
+	if err := c.Ping(context.Background()); err != nil {
+		return nil, err
+	}
+
+	return "ok", nil
 }
 
 func ClusterSlotsCount(ctx context.Context, client redis.UniversalClient) (int, error) {
