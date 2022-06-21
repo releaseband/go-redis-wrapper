@@ -34,6 +34,8 @@ func newRedSync(client redis.UniversalClient) *redsync.Redsync {
 }
 
 func newClient(uc redis.UniversalClient, _type uint8) *Client {
+	uc.AddHook(newRedisHookMetrics())
+
 	return &Client{
 		UniversalClient: uc,
 		rs:              newRedSync(uc),
@@ -41,22 +43,12 @@ func newClient(uc redis.UniversalClient, _type uint8) *Client {
 	}
 }
 
-func addHooks(cli redis.UniversalClient) {
-	cli.AddHook(newRedisHookMetrics())
-}
-
 func NewClusterClient(opt *redis.ClusterOptions) *Client {
-	cli := newClient(redis.NewClusterClient(opt), clusterClientType)
-	addHooks(cli.UniversalClient)
-
-	return cli
+	return newClient(redis.NewClusterClient(opt), clusterClientType)
 }
 
 func NewClient(opt *redis.Options) *Client {
-	cli := newClient(redis.NewClient(opt), simpleClientType)
-	addHooks(cli.UniversalClient)
-
-	return cli
+	return newClient(redis.NewClient(opt), simpleClientType)
 }
 
 func StartMiniRedis() (*Client, error) {
@@ -69,10 +61,7 @@ func StartMiniRedis() (*Client, error) {
 		Addr: mr.Addr(),
 	})
 
-	cli := newClient(uc, testClientType)
-	addHooks(cli.UniversalClient)
-
-	return cli, nil
+	return newClient(uc, testClientType), nil
 }
 
 func ClientAdapter(uc redis.UniversalClient, _type uint8) (*Client, error) {
