@@ -10,6 +10,7 @@ var (
 	ErrSlotsCountNotImplemented = errors.New("slots count not implemented for this client type")
 	ErrCastToClusterClient      = errors.New("cast to redis cluster client failed")
 	ErrInvalidClientType        = errors.New("invalid client type")
+	ErrUnlockStatusIsFailure    = errors.New("unlock status is failure")
 )
 
 func IsNotFoundErr(err error) bool {

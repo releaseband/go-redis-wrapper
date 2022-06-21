@@ -7,6 +7,8 @@ import (
 	"github.com/go-redis/redis/v8"
 	"github.com/go-redsync/redsync/v4"
 	"github.com/go-redsync/redsync/v4/redis/goredis/v8"
+	"go.opentelemetry.io/otel/attribute"
+	"time"
 )
 
 const (
@@ -14,6 +16,11 @@ const (
 	simpleClientType
 	clusterClientType
 	testClientType
+)
+
+var (
+	attributeLock   = attribute.String(commandKey, "lock")
+	attributeUnlock = attribute.String(commandKey, "unlock")
 )
 
 type Client struct {
@@ -148,4 +155,33 @@ func (c *Client) Lock(ctx context.Context, key string, options ...redsync.Option
 	}
 
 	return mutex, nil
+}
+
+func (c *Client) LockKey(ctx context.Context, key string, options ...redsync.Option) (func(context.Context) error, error) {
+	start := time.Now()
+
+	mutex, err := c.Lock(ctx, key, options...)
+	measure.Record(ctx, time.Since(start).Seconds(), attributeLock)
+	if err != nil {
+		return nil, err
+	}
+
+	unlock := func(ctx context.Context) error {
+		start := time.Now()
+
+		ok, err := mutex.UnlockContext(ctx)
+		measure.Record(ctx, time.Since(start).Seconds(), attributeUnlock)
+
+		if err != nil {
+			return err
+		}
+
+		if !ok {
+			return ErrUnlockStatusIsFailure
+		}
+
+		return nil
+	}
+
+	return unlock, nil
 }

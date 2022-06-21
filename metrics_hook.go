@@ -13,6 +13,7 @@ import (
 const (
 	prefixEnvKey       = "RB_SERVICE"
 	redisHistogramName = "redis_duration_seconds"
+	commandKey         = "command"
 )
 
 type timeCtx struct{}
@@ -56,7 +57,7 @@ func (r redisHookMetrics) AfterProcess(ctx context.Context, cmd redis.Cmder) err
 		return nil
 	}
 
-	attr := attribute.String("command", cmd.Name())
+	attr := attribute.String(commandKey, cmd.Name())
 
 	measure.Record(ctx, time.Since(start).Seconds(), attr)
 	return nil
