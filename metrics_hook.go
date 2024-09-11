@@ -2,12 +2,14 @@ package go_redis_wrapper
 
 import (
 	"context"
-	"github.com/go-redis/redis/v8"
-	"go.opentelemetry.io/otel/attribute"
-	"go.opentelemetry.io/otel/metric/global"
-	"go.opentelemetry.io/otel/metric/instrument"
+
 	"os"
 	"time"
+
+	"github.com/go-redis/redis/v8"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/metric"
+	sdkmetric "go.opentelemetry.io/otel/sdk/metric"
 )
 
 const (
@@ -19,11 +21,11 @@ const (
 type timeCtx struct{}
 
 var (
-	meter      = global.MeterProvider().Meter(getPrefix() + ".redis")
-	measure, _ = meter.SyncFloat64().Histogram(
+	meter      = sdkmetric.NewMeterProvider().Meter(getPrefix() + ".redis")
+	measure, _ = meter.Float64Histogram(
 		getPrefix()+"."+redisHistogramName,
-		instrument.WithDescription("redis duration in seconds"),
-		instrument.WithUnit("sec"),
+		metric.WithDescription("redis duration in seconds"),
+		metric.WithUnit("sec"),
 	)
 )
 
@@ -48,7 +50,7 @@ func (r redisHookMetrics) AfterProcess(ctx context.Context, cmd redis.Cmder) err
 		return nil
 	}
 
-	attr := attribute.String(commandKey, cmd.Name())
+	attr := metric.WithAttributes(attribute.String(commandKey, cmd.Name()))
 
 	measure.Record(ctx, time.Since(start).Seconds(), attr)
 	return nil
