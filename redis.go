@@ -3,11 +3,14 @@ package go_redis_wrapper
 import (
 	"context"
 	"fmt"
+
 	"github.com/alicebob/miniredis/v2"
 	"github.com/go-redis/redis/v8"
 	"github.com/go-redsync/redsync/v4"
 	"github.com/go-redsync/redsync/v4/redis/goredis/v8"
 	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/metric"
+
 	"time"
 )
 
@@ -19,8 +22,8 @@ const (
 )
 
 var (
-	attributeLock   = attribute.String(commandKey, "lock")
-	attributeUnlock = attribute.String(commandKey, "unlock")
+	attributeLock   = metric.WithAttributes(attribute.String(commandKey, "lock"))
+	attributeUnlock = metric.WithAttributes(attribute.String(commandKey, "unlock"))
 )
 
 type Client struct {
