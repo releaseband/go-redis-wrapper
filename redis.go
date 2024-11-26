@@ -8,10 +8,6 @@ import (
 	"github.com/go-redis/redis/v8"
 	"github.com/go-redsync/redsync/v4"
 	"github.com/go-redsync/redsync/v4/redis/goredis/v8"
-	"go.opentelemetry.io/otel/attribute"
-	"go.opentelemetry.io/otel/metric"
-
-	"time"
 )
 
 const (
@@ -19,11 +15,6 @@ const (
 	simpleClientType
 	clusterClientType
 	testClientType
-)
-
-var (
-	attributeLock   = metric.WithAttributes(attribute.String(commandKey, "lock"))
-	attributeUnlock = metric.WithAttributes(attribute.String(commandKey, "unlock"))
 )
 
 type Client struct {
@@ -37,10 +28,6 @@ func newRedSync(client redis.UniversalClient) *redsync.Redsync {
 }
 
 func newClient(uc redis.UniversalClient, _type uint8) *Client {
-	if _type != testClientType {
-		uc.AddHook(newRedisHookMetrics())
-	}
-
 	return &Client{
 		UniversalClient: uc,
 		rs:              newRedSync(uc),
@@ -160,20 +147,13 @@ func (c *Client) Lock(ctx context.Context, key string, options ...redsync.Option
 }
 
 func (c *Client) LockKey(ctx context.Context, key string, options ...redsync.Option) (func(context.Context) error, error) {
-	start := time.Now()
-
 	mutex, err := c.Lock(ctx, key, options...)
-	measure.Record(ctx, time.Since(start).Seconds(), attributeLock)
 	if err != nil {
 		return nil, err
 	}
 
 	unlock := func(ctx context.Context) error {
-		start := time.Now()
-
 		ok, err := mutex.UnlockContext(ctx)
-		measure.Record(ctx, time.Since(start).Seconds(), attributeUnlock)
-
 		if err != nil {
 			return err
 		}
