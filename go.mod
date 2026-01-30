@@ -1,4 +1,4 @@
-module github.com/releaseband/go-redis-wrapper/v2
+module github.com/releaseband/go-redis-wrapper/v3
 
 go 1.24.5
 
