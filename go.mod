@@ -1,11 +1,11 @@
 module github.com/releaseband/go-redis-wrapper/v2
 
-go 1.22.6
+go 1.24.5
 
 require (
-	github.com/alicebob/miniredis/v2 v2.35.0
-	github.com/go-redis/redis/v8 v8.11.5
-	github.com/go-redsync/redsync/v4 v4.13.0
+	github.com/alicebob/miniredis/v2 v2.36.1
+	github.com/go-redsync/redsync/v4 v4.15.0
+	github.com/redis/go-redis/v9 v9.17.3
 )
 
 require (
@@ -14,5 +14,4 @@ require (
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
 	github.com/yuin/gopher-lua v1.1.1 // indirect
-	golang.org/x/sys v0.25.0 // indirect
 )
