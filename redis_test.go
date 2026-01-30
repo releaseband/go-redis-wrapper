@@ -22,8 +22,8 @@ func TestNewClusterClient(t *testing.T) {
 		t.Error("Expected non-nil client")
 	}
 
-	if client.Type != clusterClientType {
-		t.Errorf("Expected client type %d, got %d", clusterClientType, client.Type)
+	if client.Type != ClusterClientType {
+		t.Errorf("Expected client type %d, got %d", ClusterClientType, client.Type)
 	}
 
 	if client.rs == nil {
@@ -42,8 +42,8 @@ func TestNewClient(t *testing.T) {
 		t.Error("Expected non-nil client")
 	}
 
-	if client.Type != simpleClientType {
-		t.Errorf("Expected client type %d, got %d", simpleClientType, client.Type)
+	if client.Type != SimpleClientType {
+		t.Errorf("Expected client type %d, got %d", SimpleClientType, client.Type)
 	}
 
 	if client.rs == nil {
@@ -62,8 +62,8 @@ func TestStartMiniRedis(t *testing.T) {
 		t.Error("Expected non-nil client")
 	}
 
-	if client.Type != testClientType {
-		t.Errorf("Expected client type %d, got %d", testClientType, client.Type)
+	if client.Type != TestClientType {
+		t.Errorf("Expected client type %d, got %d", TestClientType, client.Type)
 	}
 
 	// Test that we can ping the client
@@ -94,17 +94,17 @@ func TestClientAdapter(t *testing.T) {
 	}{
 		{
 			name:       "simple client type",
-			clientType: simpleClientType,
+			clientType: SimpleClientType,
 			wantErr:    false,
 		},
 		{
 			name:       "cluster client type",
-			clientType: clusterClientType,
+			clientType: ClusterClientType,
 			wantErr:    false,
 		},
 		{
 			name:       "test client type",
-			clientType: testClientType,
+			clientType: TestClientType,
 			wantErr:    false,
 		},
 		{
@@ -230,12 +230,12 @@ func TestClient_Ping(t *testing.T) {
 	}{
 		{
 			name:       "simple client",
-			clientType: simpleClientType,
+			clientType: SimpleClientType,
 			wantErr:    false,
 		},
 		{
 			name:       "test client",
-			clientType: testClientType,
+			clientType: TestClientType,
 			wantErr:    false,
 		},
 		{
@@ -301,13 +301,13 @@ func TestClient_SlotsCount(t *testing.T) {
 	}{
 		{
 			name:          "simple client",
-			clientType:    simpleClientType,
+			clientType:    SimpleClientType,
 			wantErr:       false,
 			expectedCount: 0,
 		},
 		{
 			name:          "test client",
-			clientType:    testClientType,
+			clientType:    TestClientType,
 			wantErr:       false,
 			expectedCount: 0,
 		},
