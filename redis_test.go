@@ -2,6 +2,7 @@ package go_redis_wrapper
 
 import (
 	"context"
+	"strconv"
 	"testing"
 	"time"
 
@@ -325,14 +326,10 @@ func TestClient_SlotsCount(t *testing.T) {
 
 			count, err := client.SlotsCount(context.Background())
 
-			if tt.wantErr {
-				if err == nil {
-					t.Error("Expected error but got none")
-				}
+			if tt.wantErr && err == nil {
+				t.Error("Expected error but got none")
 				return
-			}
-
-			if err != nil {
+			} else if !tt.wantErr && err != nil {
 				t.Errorf("Unexpected error: %v", err)
 			}
 
@@ -494,7 +491,8 @@ func BenchmarkClient_Lock(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		key := "bench-lock-" + string(rune(i))
+		key := "bench-lock-" + strconv.Itoa(i)
+
 		mutex, err := client.Lock(ctx, key)
 		if err != nil {
 			b.Errorf("Lock failed: %v", err)
