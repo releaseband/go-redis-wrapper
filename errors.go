@@ -11,11 +11,11 @@ var (
 	ErrPingNotImplemented = errors.New("ping not implemented for this redis client type")
 	// ErrClusterPingNotImplemented indicates that the ClusterPing method is not implemented for the given client type.
 	ErrSlotsCountNotImplemented = errors.New("slots count not implemented for this client type")
-	// ErrCastToSimpleClient indicates a failure to cast to a simple Redis client.
+	// ErrCastToClusterClient indicates that casting to redis.ClusterClient has failed.
 	ErrCastToClusterClient = errors.New("cast to redis cluster client failed")
 	// ErrInvalidClientType indicates that the provided client type is invalid.
 	ErrInvalidClientType = errors.New("invalid client type")
-	// ErrLockFailed indicates that acquiring the lock has failed.
+	// ErrUnlockStatusIsFailure indicates that the unlock operation has failed.
 	ErrUnlockStatusIsFailure = errors.New("unlock status is failure")
 )
 
