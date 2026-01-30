@@ -12,9 +12,9 @@ import (
 
 const (
 	empty uint8 = iota
-	simpleClientType
-	clusterClientType
-	testClientType
+	SimpleClientType
+	ClusterClientType
+	TestClientType
 )
 
 // Client is a wrapper around redis.UniversalClient with additional features.
@@ -24,14 +24,6 @@ type Client struct {
 	redis.UniversalClient
 	rs   *redsync.Redsync
 	Type uint8
-}
-
-func newClient(uc redis.UniversalClient, _type uint8) *Client {
-	return &Client{
-		UniversalClient: uc,
-		rs:              newRedSync(uc),
-		Type:            _type,
-	}
 }
 
 // newRedSync creates a new redsync instance using the provided
@@ -45,7 +37,7 @@ func newRedSync(client redis.UniversalClient) *redsync.Redsync {
 // It initializes the underlying redis.ClusterClient and sets the client type.
 // Returns the newly created Client.
 func NewClusterClient(opt *redis.ClusterOptions) *Client {
-	return newClient(redis.NewClusterClient(opt), clusterClientType)
+	return newClient(redis.NewClusterClient(opt), ClusterClientType)
 }
 
 // NewClient creates a new Client instance configured as a simple Redis
@@ -53,7 +45,7 @@ func NewClusterClient(opt *redis.ClusterOptions) *Client {
 // It initializes the underlying redis.Client and sets the client type.
 // Returns the newly created Client.
 func NewClient(opt *redis.Options) *Client {
-	return newClient(redis.NewClient(opt), simpleClientType)
+	return newClient(redis.NewClient(opt), SimpleClientType)
 }
 
 // StartMiniRedis starts a new instance of miniredis for testing purposes.
@@ -70,19 +62,27 @@ func StartMiniRedis() (*Client, error) {
 		Addr: mr.Addr(),
 	})
 
-	return newClient(uc, testClientType), nil
+	return newClient(uc, TestClientType), nil
 }
 
-func ClientAdapter(uc redis.UniversalClient, _type uint8) (*Client, error) {
-	switch _type {
-	case simpleClientType, clusterClientType, testClientType:
+func ClientAdapter(uc redis.UniversalClient, clientType uint8) (*Client, error) {
+	switch clientType {
+	case SimpleClientType, ClusterClientType, TestClientType:
 	//
 	default:
 		return nil, ErrInvalidClientType
 
 	}
 
-	return newClient(uc, _type), nil
+	return newClient(uc, clientType), nil
+}
+
+func newClient(uc redis.UniversalClient, clientType uint8) *Client {
+	return &Client{
+		UniversalClient: uc,
+		rs:              newRedSync(uc),
+		Type:            clientType,
+	}
 }
 
 // CastToRedisCluster attempts to cast the provided redis.UniversalClient
@@ -128,9 +128,9 @@ func SimplePing(ctx context.Context, client redis.Cmdable) error {
 // if the client type is unsupported.
 func (c *Client) Ping(ctx context.Context) error {
 	switch c.Type {
-	case clusterClientType:
+	case ClusterClientType:
 		return ClusterPing(ctx, c.UniversalClient)
-	case simpleClientType, testClientType:
+	case SimpleClientType, TestClientType:
 		return SimplePing(ctx, c.UniversalClient)
 	default:
 		return fmt.Errorf("clientType=%d: %w", c.Type, ErrPingNotImplemented)
@@ -172,9 +172,9 @@ func ClusterSlotsCount(ctx context.Context, client redis.UniversalClient) (int, 
 // It returns an error if the client type is unsupported.
 func (c Client) SlotsCount(ctx context.Context) (int, error) {
 	switch c.Type {
-	case clusterClientType:
+	case ClusterClientType:
 		return ClusterSlotsCount(ctx, c.UniversalClient)
-	case simpleClientType, testClientType:
+	case SimpleClientType, TestClientType:
 		return 0, nil
 	default:
 		return 0, fmt.Errorf("clientType=%d: %w",
