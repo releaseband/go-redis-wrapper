@@ -21,5 +21,5 @@ var (
 
 // IsNotFoundErr checks if the provided error indicates a "not found" condition in Redis.
 func IsNotFoundErr(err error) bool {
-	return err != nil && err == redis.Nil
+	return errors.Is(err, redis.Nil)
 }

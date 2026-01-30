@@ -2,6 +2,7 @@ package go_redis_wrapper
 
 import (
 	"errors"
+	"fmt"
 	"testing"
 
 	"github.com/redis/go-redis/v9"
@@ -30,7 +31,7 @@ func TestIsNotFoundErr(t *testing.T) {
 		},
 		{
 			name:     "wrapped redis.Nil error",
-			err:      redis.Nil,
+			err:      fmt.Errorf("failed: %w", redis.Nil),
 			expected: true,
 		},
 	}
