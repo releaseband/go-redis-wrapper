@@ -2,6 +2,7 @@ package go_redis_wrapper
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/alicebob/miniredis/v2"
@@ -140,12 +141,15 @@ func (c *Client) Lock(ctx context.Context, key string, options ...redsync.Option
 	mutex := c.rs.NewMutex(key, options...)
 
 	if err := mutex.LockContext(ctx); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("lock context: %w", err)
 	}
 
 	return mutex, nil
 }
 
+// LockKey acquires a distributed lock on key and returns an unlock function.
+// Retries up to 32 times (redsync default) with delays between attempts — blocks until the lock
+// is acquired or all retries are exhausted. Use redsync.WithTries to override the retry count.
 func (c *Client) LockKey(ctx context.Context, key string, options ...redsync.Option) (func(context.Context) error, error) {
 	mutex, err := c.Lock(ctx, key, options...)
 	if err != nil {
@@ -153,17 +157,57 @@ func (c *Client) LockKey(ctx context.Context, key string, options ...redsync.Opt
 	}
 
 	unlock := func(ctx context.Context) error {
-		ok, err := mutex.UnlockContext(ctx)
-		if err != nil {
-			return err
-		}
-
-		if !ok {
-			return ErrUnlockStatusIsFailure
-		}
-
-		return nil
+		return unlock(ctx, mutex)
 	}
 
 	return unlock, nil
+}
+
+// TryLockKey makes a single attempt to acquire a distributed lock on key without retries.
+// Returns ErrResourceBusy immediately if the key is already locked — use this when waiting
+// for a lock is not acceptable. Unlike LockKey, it never blocks on contention.
+func (c *Client) TryLockKey(ctx context.Context, key string, options ...redsync.Option) (func(context.Context) error, error) {
+	mutex, err := c.TryLock(ctx, key, options...)
+	if err != nil {
+		return nil, err
+	}
+
+	unlock := func(ctx context.Context) error {
+		return unlock(ctx, mutex)
+	}
+
+	return unlock, nil
+}
+
+func (c *Client) TryLock(ctx context.Context, key string, options ...redsync.Option) (*redsync.Mutex, error) {
+	mutex := c.rs.NewMutex(key, options...)
+
+	if err := mutex.LockContext(ctx); err != nil {
+		return nil, fmt.Errorf("lock context: %w", err)
+	}
+
+	err := mutex.TryLock()
+	if err != nil {
+		var taken *redsync.ErrTaken
+		if errors.As(err, &taken) {
+			return nil, ErrResourceBusy
+		}
+
+		return nil, fmt.Errorf("failed to acquire lock: %w", err)
+	}
+
+	return mutex, nil
+}
+
+func unlock(ctx context.Context, mutex *redsync.Mutex) error {
+	ok, err := mutex.UnlockContext(ctx)
+	if err != nil {
+		return err
+	}
+
+	if !ok {
+		return ErrUnlockStatusIsFailure
+	}
+
+	return nil
 }
