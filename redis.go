@@ -182,12 +182,7 @@ func (c *Client) TryLockKey(ctx context.Context, key string, options ...redsync.
 func (c *Client) TryLock(ctx context.Context, key string, options ...redsync.Option) (*redsync.Mutex, error) {
 	mutex := c.rs.NewMutex(key, options...)
 
-	if err := mutex.LockContext(ctx); err != nil {
-		return nil, fmt.Errorf("lock context: %w", err)
-	}
-
-	err := mutex.TryLock()
-	if err != nil {
+	if err := mutex.TryLockContext(ctx); err != nil {
 		var taken *redsync.ErrTaken
 
 		if errors.As(err, &taken) {
