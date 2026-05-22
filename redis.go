@@ -163,6 +163,9 @@ func (c *Client) LockKey(ctx context.Context, key string, options ...redsync.Opt
 	return unlock, nil
 }
 
+// TryLockKey makes a single attempt to acquire a distributed lock on key without retries.
+// Returns ErrResourceBusy immediately if the key is already locked — use this when waiting
+// for a lock is not acceptable. Unlike LockKey, it never blocks on contention.
 func (c *Client) TryLockKey(ctx context.Context, key string, options ...redsync.Option) (func(context.Context) error, error) {
 	mutex, err := c.TryLock(ctx, key, options...)
 	if err != nil {
