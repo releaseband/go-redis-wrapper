@@ -2,6 +2,7 @@ package go_redis_wrapper
 
 import (
 	"errors"
+
 	"github.com/go-redis/redis/v8"
 )
 
@@ -11,8 +12,9 @@ var (
 	ErrCastToClusterClient      = errors.New("cast to redis cluster client failed")
 	ErrInvalidClientType        = errors.New("invalid client type")
 	ErrUnlockStatusIsFailure    = errors.New("unlock status is failure")
+	ErrResourceBusy             = errors.New("resource is busy")
 )
 
 func IsNotFoundErr(err error) bool {
-	return err != nil && err == redis.Nil
+	return errors.Is(err, redis.Nil)
 }
