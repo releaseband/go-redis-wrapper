@@ -16,5 +16,5 @@ var (
 )
 
 func IsNotFoundErr(err error) bool {
-	return err != nil && err == redis.Nil
+	return errors.Is(err, redis.Nil)
 }
