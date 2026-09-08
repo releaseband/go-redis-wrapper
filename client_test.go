@@ -1,4 +1,4 @@
-package go_redis_wrapper_test
+package goredis_test
 
 import (
 	"context"
