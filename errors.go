@@ -1,4 +1,4 @@
-package go_redis_wrapper
+package goredis
 
 import (
 	"errors"
