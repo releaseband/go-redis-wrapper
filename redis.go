@@ -72,10 +72,8 @@ func StartMiniRedis() (*Client, error) {
 func ClientAdapter(uc redis.UniversalClient, clientType uint8) (*Client, error) {
 	switch clientType {
 	case SimpleClientType, ClusterClientType, TestClientType:
-	//
 	default:
 		return nil, ErrInvalidClientType
-
 	}
 
 	return newClient(uc, clientType), nil

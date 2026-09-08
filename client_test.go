@@ -81,6 +81,7 @@ func TestClientAdapter(t *testing.T) {
 			t.Parallel()
 
 			uc := redis.NewClient(&redis.Options{Addr: "127.0.0.1:0"})
+			t.Cleanup(func() { _ = uc.Close() })
 
 			client, err := goredis.ClientAdapter(uc, tc.clientType)
 			tc.checkErr(t, err)
@@ -122,6 +123,8 @@ func TestCastToRedisCluster(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
+			t.Cleanup(func() { _ = tc.client.Close() })
+
 			cluster, err := goredis.CastToRedisCluster(tc.client)
 			tc.checkErr(t, err)
 
@@ -158,6 +161,7 @@ func TestClient_Ping(t *testing.T) {
 		t.Parallel()
 
 		uc := redis.NewClient(&redis.Options{Addr: "127.0.0.1:0"})
+		t.Cleanup(func() { _ = uc.Close() })
 
 		client, err := goredis.ClientAdapter(uc, goredis.ClusterClientType)
 		require.NoError(t, err)
@@ -217,6 +221,7 @@ func TestClient_SlotsCount(t *testing.T) {
 		t.Parallel()
 
 		uc := redis.NewClient(&redis.Options{Addr: "127.0.0.1:0"})
+		t.Cleanup(func() { _ = uc.Close() })
 
 		client, err := goredis.ClientAdapter(uc, goredis.ClusterClientType)
 		require.NoError(t, err)
