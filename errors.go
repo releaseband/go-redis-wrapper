@@ -17,6 +17,9 @@ var (
 	ErrInvalidClientType = errors.New("invalid client type")
 	// ErrUnlockStatusIsFailure indicates that the unlock operation has failed.
 	ErrUnlockStatusIsFailure = errors.New("unlock status is failure")
+	// ErrResourceBusy indicates that TryLock/TryLockKey could not acquire the
+	// lock because it is already held.
+	ErrResourceBusy = errors.New("resource is busy")
 )
 
 // IsNotFoundErr checks if the provided error indicates a "not found" condition in Redis.

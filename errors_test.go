@@ -1,4 +1,4 @@
-package go_redis_wrapper
+package go_redis_wrapper_test
 
 import (
 	"errors"
@@ -6,42 +6,46 @@ import (
 	"testing"
 
 	"github.com/redis/go-redis/v9"
+	"github.com/stretchr/testify/assert"
+
+	goredis "github.com/releaseband/go-redis-wrapper/v3"
 )
 
 func TestIsNotFoundErr(t *testing.T) {
+	t.Parallel()
+
 	tests := []struct {
-		name     string
-		err      error
-		expected bool
+		name string
+		err  error
+		want bool
 	}{
 		{
-			name:     "nil error",
-			err:      nil,
-			expected: false,
+			name: "nil error is not a not-found error",
+			err:  nil,
+			want: false,
 		},
 		{
-			name:     "redis.Nil error",
-			err:      redis.Nil,
-			expected: true,
+			name: "redis.Nil is a not-found error",
+			err:  redis.Nil,
+			want: true,
 		},
 		{
-			name:     "other error",
-			err:      errors.New("some other error"),
-			expected: false,
+			name: "wrapped redis.Nil is a not-found error",
+			err:  fmt.Errorf("get key: %w", redis.Nil),
+			want: true,
 		},
 		{
-			name:     "wrapped redis.Nil error",
-			err:      fmt.Errorf("failed: %w", redis.Nil),
-			expected: true,
+			name: "unrelated error is not a not-found error",
+			err:  errors.New("boom"),
+			want: false,
 		},
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			result := IsNotFoundErr(tt.err)
-			if result != tt.expected {
-				t.Errorf("IsNotFoundErr(%v) = %v, expected %v", tt.err, result, tt.expected)
-			}
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			assert.Equal(t, tc.want, goredis.IsNotFoundErr(tc.err))
 		})
 	}
 }
