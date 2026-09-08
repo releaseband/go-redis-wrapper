@@ -60,7 +60,7 @@ func StartMiniRedis() (*Client, error) {
 func ClientAdapter(uc redis.UniversalClient, _type uint8) (*Client, error) {
 	switch _type {
 	case simpleClientType, clusterClientType, testClientType:
-	//
+	// ok
 	default:
 		return nil, ErrInvalidClientType
 
@@ -137,7 +137,11 @@ func (c Client) SlotsCount(ctx context.Context) (int, error) {
 	}
 }
 
-func (c *Client) Lock(ctx context.Context, key string, options ...redsync.Option) (*redsync.Mutex, error) {
+func (c *Client) Lock(
+	ctx context.Context,
+	key string,
+	options ...redsync.Option,
+) (*redsync.Mutex, error) {
 	mutex := c.rs.NewMutex(key, options...)
 
 	if err := mutex.LockContext(ctx); err != nil {
@@ -150,36 +154,48 @@ func (c *Client) Lock(ctx context.Context, key string, options ...redsync.Option
 // LockKey acquires a distributed lock on key and returns an unlock function.
 // Retries up to 32 times (redsync default) with delays between attempts — blocks until the lock
 // is acquired or all retries are exhausted. Use redsync.WithTries to override the retry count.
-func (c *Client) LockKey(ctx context.Context, key string, options ...redsync.Option) (func(context.Context) error, error) {
+func (c *Client) LockKey(
+	ctx context.Context,
+	key string,
+	options ...redsync.Option,
+) (func(context.Context) error, error) {
 	mutex, err := c.Lock(ctx, key, options...)
 	if err != nil {
 		return nil, err
 	}
 
-	unlock := func(ctx context.Context) error {
+	callback := func(ctx context.Context) error {
 		return unlock(ctx, mutex)
 	}
 
-	return unlock, nil
+	return callback, nil
 }
 
 // TryLockKey makes a single attempt to acquire a distributed lock on key without retries.
 // Returns ErrResourceBusy immediately if the key is already locked — use this when waiting
 // for a lock is not acceptable. Unlike LockKey, it never blocks on contention.
-func (c *Client) TryLockKey(ctx context.Context, key string, options ...redsync.Option) (func(context.Context) error, error) {
+func (c *Client) TryLockKey(
+	ctx context.Context,
+	key string,
+	options ...redsync.Option,
+) (func(context.Context) error, error) {
 	mutex, err := c.TryLock(ctx, key, options...)
 	if err != nil {
 		return nil, err
 	}
 
-	unlock := func(ctx context.Context) error {
+	callback := func(ctx context.Context) error {
 		return unlock(ctx, mutex)
 	}
 
-	return unlock, nil
+	return callback, nil
 }
 
-func (c *Client) TryLock(ctx context.Context, key string, options ...redsync.Option) (*redsync.Mutex, error) {
+func (c *Client) TryLock(
+	ctx context.Context,
+	key string,
+	options ...redsync.Option,
+) (*redsync.Mutex, error) {
 	mutex := c.rs.NewMutex(key, options...)
 
 	if err := mutex.TryLockContext(ctx); err != nil {
